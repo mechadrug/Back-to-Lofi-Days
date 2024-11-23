@@ -1,0 +1,11 @@
+{
+    "experience": 2300,
+    "inventory": [
+        "sword",
+        "shield",
+        "potion",
+        "bow"
+    ],
+    "level": 11,
+    "name": "John"
+}
