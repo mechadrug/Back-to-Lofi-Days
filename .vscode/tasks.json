@@ -5,23 +5,24 @@
             "label": "C/C++: g++.exe 生成活动文件",
             "command": "E:\\MinGW\\mingw64\\bin\\g++.exe",
             "args": [
-                "tinyxml2.cpp",
-                "-I",
-                "E:\\sfml\\SFML-2.6.2\\include",
+                // 包含头文件路径
+                "${workspaceFolder}/src/tinyxml2.cpp",
+                "-I", "${workspaceFolder}/include",
+                "-I", "${workspaceFolder}/src",
+                "-I", "E:\\sfml\\SFML-2.6.2\\include",
                 "-fdiagnostics-color=always",
                 "-g",
+                // 指定所有需要的 .cpp 文件
                 "${file}",
-                "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "-L",
-                "E:\\sfml\\SFML-2.6.2\\lib",
+                // 链接库
+                "-L", "E:\\sfml\\SFML-2.6.2\\lib",
                 "-lsfml-graphics",
                 "-lsfml-window",
                 "-lsfml-system"
                 
             ],
             "options": {
-                "cwd": "${fileDirname}"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [
                 "$gcc"

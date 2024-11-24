@@ -1,5 +1,5 @@
 #include <SFML/Window.hpp>
- 
+#include "../include/Shop.h" 
 int main()
 {
   sf::Window window(sf::VideoMode(800, 600), "SFML works!");
