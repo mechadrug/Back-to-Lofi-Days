@@ -1,16 +1,16 @@
 #include <SFML/Window.hpp>
-#include "../include/Shop.h" 
-int main()
-{
-  sf::Window window(sf::VideoMode(800, 600), "SFML works!");
-  while (window.isOpen())
-  {
-    sf::Event event;
-    while (window.pollEvent(event))
-    {
-      /* code */
-      if (event.type == sf::Event::Closed)
-        window.close();
-    }
+#include "../include/Shop.h"
+#include "../include/Game.h"
+#include<iostream>
+using namespace std; 
+int main(){
+  try{
+    Game game;
+    game.run();
+  }catch(const exception&e){
+    cerr<<"!error: "<<e.what()<<endl;
+    return EXIT_FAILURE;
   }
+  return EXIT_SUCCESS;
+  //cout<<"hello"<<endl;
 }
