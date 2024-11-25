@@ -10,7 +10,8 @@ using namespace sf;
 class MenuState: public GameState{
     private:
     Game *game;
-    Button startButton;
+    Button startButton;//开始按钮
+    Button exitButton;//退出按钮
     sf::Font font;
 
     public:

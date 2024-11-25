@@ -11,6 +11,9 @@ class Game{
     private:
     RenderWindow window;
     unique_ptr<GameState> currentState;
+    View view;//用于缩放
+    Vector2u baseResolution= {800,600};//基础分辨率
+
     public:
     Game();
     ~Game();
@@ -21,3 +24,4 @@ class Game{
 };
 
 #endif
+//320*3=960,540

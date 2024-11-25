@@ -1,7 +1,7 @@
 #include "../include/Game.h"
 #include "../include/MenuState.h"
-
-Game::Game():window(VideoMode(800,600),"game frame test"){
+#include<iostream>
+Game::Game():window(VideoMode(800,600),"Lofi Days"){
     //默认进入菜单状态:
     changeState(make_unique<MenuState>(this));
 }//Game类的构造函数
