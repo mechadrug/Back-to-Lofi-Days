@@ -1,32 +1,26 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include<SFML/Graphics.hpp>
-
-using namespace std;
-using namespace sf;
-
-class Button{
-    private:
-    RectangleShape shape; //矩形区域
-    Text label; //按钮的文字
-    public:
+#include <SFML/Graphics.hpp>
+#include <string>
+#include<memory>
+class Button {
+public:
+    // 构造函数
     Button()=default;
-    Button(float x,float y,float width,float height,const Font& font,const string& text,Color bgColor,Color textColor);//构造函数
-    void draw(RenderWindow& window);//渲染按钮
-    bool isClicked(const Event::MouseButtonEvent&mouseEvent);//处理点击事件
-    void setBackgroundColor(const Color&color);//按钮整体颜色
-    void setTextColor(const Color& color);//文字颜色
-    void setOutlineThickness(float thickness);//边框厚度
-    void setOutlineColor(const Color& color);//边框颜色
+    Button(float x, float y, float width, float height, const std::shared_ptr<sf::Texture>& texture);
+    // 渲染按钮
+    void draw(sf::RenderWindow& window);
+    // 检查鼠标点击是否在按钮区域内
+    bool isPressed(sf::Vector2i mousePosition);
+    // 获取按钮的位置和尺寸
+    sf::FloatRect getBounds() const;
 
-    void updateHover(const Vector2f& mousePosition) ;//悬停效果更新
-    RectangleShape& getShape(){
-        return shape;
-    }
+private:
+    sf::Sprite sprite;          // 用于显示按钮的精灵
 
-
+    float width, height;
+    float x, y;
 };
-
 
 #endif

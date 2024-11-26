@@ -4,13 +4,35 @@
 #include <iostream>
 using namespace std;
 MenuState::MenuState(Game* game) : game(game) {
-    if (!font.loadFromFile("../resources/fonts/hk4e_zh-cn.ttf")) {
-        throw runtime_error("Failed to load font!");
+
+    // 获取窗口的大小
+    sf::Vector2u windowSize = game->getWindow().getSize();
+
+    // 按钮的宽度和高度
+    unsigned int buttonWidth = 240;
+    unsigned int buttonHeight = 80;
+
+    // 水平居中：窗口宽度的一半减去按钮宽度的一半
+    unsigned int startButtonX = (windowSize.x - buttonWidth) / 2;
+    unsigned int startButtonY = windowSize.y - buttonHeight - 140; // 垂直方向上放在底部上方一定距离（160像素）
+
+    unsigned int exitButtonX = (windowSize.x - buttonWidth) / 2;
+    unsigned int exitButtonY = startButtonY + buttonHeight + 10; // Exit 按钮位于 Start 按钮下方，设置一定的间隔
+
+    startButtonTexture = std::make_shared<sf::Texture>();
+    if (!startButtonTexture->loadFromFile("../resources/images/start.png")) {
+        throw runtime_error("Failed to load start button texture!");
     }
 
-    //字体加载成功后再初始化按钮
-    startButton = Button(300, 200, 200, 50, font, "Start", sf::Color::Blue, sf::Color::White);
-    exitButton = Button(300, 300, 200, 50, font, "Exit", sf::Color::Blue, sf::Color::White);
+    exitButtonTexture = std::make_shared<sf::Texture>();
+    if (!exitButtonTexture->loadFromFile("../resources/images/start.png")) {
+        throw runtime_error("Failed to load exit button texture!");
+    }
+
+    // 初始化按钮，使用自定义纹理
+    startButton = Button(startButtonX, startButtonY, buttonWidth, buttonHeight, startButtonTexture);
+    exitButton = Button(exitButtonX, exitButtonY, buttonWidth, buttonHeight, exitButtonTexture);
+    background = std::make_shared<Map>("../resources/images/realbg-menu.png");
 }
 
 void MenuState::handleInput(RenderWindow& window){
@@ -24,10 +46,12 @@ void MenuState::handleInput(RenderWindow& window){
             //game->initView();
         }
         if(event.type == Event::MouseButtonPressed){
-            if(startButton.isClicked(event.mouseButton)){
+            if(startButton.isPressed(Mouse::getPosition(window))){
+                cout<<"???"<<endl;
                 game->changeState(make_unique<LevelState>(game));
+
             }
-            if(exitButton.isClicked(event.mouseButton)) {
+            if(exitButton.isPressed(Mouse::getPosition(window))) {
                 cout<<"ExitButton clicked!"<<endl;
                 window.close();
             }
@@ -36,15 +60,11 @@ void MenuState::handleInput(RenderWindow& window){
     }
 }
 void MenuState::update(){
-    Vector2i mousePosition = Mouse::getPosition(game->getWindow());
-    Vector2f worldPosition = game->getWindow().mapPixelToCoords(mousePosition);
-
-    startButton.updateHover(worldPosition);
-    exitButton.updateHover(worldPosition);//悬停效果
 }//更新菜单状态
 
 void MenuState::render(RenderWindow& window){
     window.clear(Color::Black);
+    background->draw(window);
     startButton.draw(window);
     exitButton.draw(window);
     window.display();

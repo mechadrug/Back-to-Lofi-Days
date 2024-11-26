@@ -17,6 +17,7 @@ class GameState{//游戏关卡虚基类
     virtual void handleInput(sf::RenderWindow &window) = 0;
     virtual void update() = 0;
     virtual void render(sf::RenderWindow &window) = 0;
+    virtual const char* getName() const = 0;
 };
 
 #endif

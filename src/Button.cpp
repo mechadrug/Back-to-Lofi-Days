@@ -1,52 +1,31 @@
 #include "../include/Button.h"
-#include<iostream>
-Button::Button(float x,float y,float width,float height,const Font&font,const string&text,
-Color bgColor,Color textColor){
-    shape.setPosition(x,y);//按钮的基点位置
-    shape.setSize({width,height});//按钮的大小
-    shape.setFillColor(bgColor);//按钮的颜色
-    shape.setOutlineThickness(1.0f);//默认边框厚度
-    shape.setOutlineColor(Color::White);//默认边框是白色的
+#include <iostream>
 
-    label.setFont(font);//文字的字体
-    label.setString(text);//文本
-    label.setCharacterSize(static_cast<unsigned int>(height * 0.5));
-    label.setFillColor(textColor);//字色
-    sf::FloatRect labelBounds = label.getLocalBounds();
-    label.setPosition(
-        x + (width - labelBounds.width) / 2 - labelBounds.left,
-        y + (height - labelBounds.height) / 2 - labelBounds.top
-    );//字位于中心
-
-}
-/*_____able to change private member through these functions_____*/
-void Button::draw(RenderWindow& window){
-    window.draw(shape);
-    window.draw(label);
-    //把按钮画到当前渲染对象的窗口
-}
-
-bool Button::isClicked(const Event::MouseButtonEvent& mouseEvent){
-    return shape.getGlobalBounds().contains(mouseEvent.x,mouseEvent.y);
-}//检测是否按了按钮
-void Button:: setTextColor(const Color& color){
-    label.setFillColor(color);
-}//文字颜色
-void Button::setOutlineThickness(float thickness){
-    shape.setOutlineThickness(thickness);
-}//边框厚度
-void Button::setOutlineColor(const Color& color){
-    shape.setOutlineColor(color);
-}//边框颜色
-void Button::setBackgroundColor(const Color&color){
-    shape.setFillColor(color);
-}//按钮的整体颜色
-
-void Button::updateHover(const Vector2f& mousePosition) {
-    if (shape.getGlobalBounds().contains(mousePosition)) {
-        shape.setFillColor(Color(100, 100, 100, 128)); //悬停颜色
+Button::Button(float x, float y, float width, float height, const std::shared_ptr<sf::Texture>& texture)
+    : x(x), y(y), width(width), height(height) {
+    
+    if (!texture) {
+    throw std::runtime_error("Texture is null in Button constructor");
+    }
+    // 设置按钮精灵
+    sprite.setTexture(*texture);
+    sprite.setPosition(x, y);
+    if (sprite.getLocalBounds().width != 0 && sprite.getLocalBounds().height != 0) {
+        sprite.setScale(width / sprite.getLocalBounds().width, height / sprite.getLocalBounds().height);
     } else {
-        shape.setFillColor(Color::Blue);       //默认颜色
+        std::cerr << "Invalid sprite dimensions!" << std::endl;
     }
 }
 
+void Button::draw(sf::RenderWindow& window) {
+    window.draw(sprite);  // 绘制按钮的图片
+}
+
+bool Button::isPressed(sf::Vector2i mousePosition) {
+    // 检查鼠标是否点击了按钮
+    return sprite.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePosition));
+}
+
+sf::FloatRect Button::getBounds() const {
+    return sprite.getGlobalBounds();
+}
