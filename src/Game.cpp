@@ -5,13 +5,15 @@ Game::Game(){
     const sf::VideoMode desktopMode = sf::VideoMode::getDesktopMode();
     unsigned int screenHeight = desktopMode.height;
     unsigned int screenWidth = desktopMode.width;
-
+    Image icon;
+    icon.loadFromFile("../resources/images/hint.png");
     //计算窗口的高度为屏幕高度的0.8
     unsigned int windowHeight = static_cast<unsigned int>(screenHeight * 0.8);
-
+    
     //根据4:3比例计算窗口宽度
     unsigned int windowWidth = windowHeight * 4 / 3;
     window.create(sf::VideoMode(windowWidth, windowHeight), "Lofi Days");
+     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     //默认进入菜单状态:
     changeState(make_unique<MenuState>(this));
 }//Game类的构造函数
@@ -19,14 +21,8 @@ Game::Game(){
 Game::~Game(){}//使用智能指针不需要手动释放内存了太好了
 
 void Game::run(){
-    if(window.isOpen()){
-        cout<<currentState->getName()<<endl;
-    }
     while(window.isOpen()){
         if(currentState){
-            if(currentState->getName()=="LevelState"){
-                cout<<"12"<<endl;
-            }
             currentState->handleInput(window);
             currentState->update();
             currentState->render(window);

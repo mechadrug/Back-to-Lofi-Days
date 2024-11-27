@@ -4,11 +4,12 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include<memory>
+#include "../include/TexturePool.h"
 class Button {
 public:
     // 构造函数
     Button()=default;
-    Button(float x, float y, float width, float height, const std::shared_ptr<sf::Texture>& texture);
+    Button(float x, float y, float width, float height, const std::string& textureFile);
     // 渲染按钮
     void draw(sf::RenderWindow& window);
     // 检查鼠标点击是否在按钮区域内
@@ -24,3 +25,4 @@ private:
 };
 
 #endif
+

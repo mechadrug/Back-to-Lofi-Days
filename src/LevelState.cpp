@@ -6,7 +6,6 @@ LevelState::LevelState(Game*game): game(game){
     if (game == nullptr) {
         throw std::runtime_error("Game pointer is null in LevelState constructor!");
     }
-    std::cout << "Entering LevelState..." << std::endl;
     if (!font.loadFromFile("../resources/fonts/hk4e_zh-cn.ttf")) {
             throw runtime_error("Failed to load font!");
         }

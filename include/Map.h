@@ -1,3 +1,6 @@
+#ifndef MAP_H
+#define MAP_H
+
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <stdexcept>
@@ -7,9 +10,11 @@ using namespace std;
 using namespace sf;
 class Map{
     private:
-     shared_ptr<Texture> bgTexture;
      Sprite bgSprite;
     public:
+    Map()=default;
     Map(const string& bgFile);
     void draw(RenderWindow&window);
 };
+
+#endif

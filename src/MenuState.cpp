@@ -1,39 +1,31 @@
 #include "../include/MenuState.h"
 #include "../include/Game.h"
 #include "../include/LevelState.h"
+#include "../include/TexturePool.h"
 #include <iostream>
 using namespace std;
-MenuState::MenuState(Game* game) : game(game) {
+ MenuState::MenuState(Game* game) : game(game) {
 
     // 获取窗口的大小
     sf::Vector2u windowSize = game->getWindow().getSize();
 
-    // 按钮的宽度和高度
-    unsigned int buttonWidth = 240;
-    unsigned int buttonHeight = 80;
+    // 开始按钮的宽度和高度:
+     unsigned int buttonWidth = 240;
+     unsigned int buttonHeight = 80;
+    //结束按钮的宽度:
+    unsigned int exitButttonWidth = 120;
+    unsigned int bgwidth=240;
+    unsigned int bgheight=80;
 
-    // 水平居中：窗口宽度的一半减去按钮宽度的一半
     unsigned int startButtonX = (windowSize.x - buttonWidth) / 2;
     unsigned int startButtonY = windowSize.y - buttonHeight - 140; // 垂直方向上放在底部上方一定距离（160像素）
 
-    unsigned int exitButtonX = (windowSize.x - buttonWidth) / 2;
+    unsigned int exitButtonX = (windowSize.x - exitButttonWidth) / 2;
     unsigned int exitButtonY = startButtonY + buttonHeight + 10; // Exit 按钮位于 Start 按钮下方，设置一定的间隔
-
-    startButtonTexture = std::make_shared<sf::Texture>();
-    if (!startButtonTexture->loadFromFile("../resources/images/start.png")) {
-        throw runtime_error("Failed to load start button texture!");
-    }
-
-    exitButtonTexture = std::make_shared<sf::Texture>();
-    if (!exitButtonTexture->loadFromFile("../resources/images/start.png")) {
-        throw runtime_error("Failed to load exit button texture!");
-    }
-
-    // 初始化按钮，使用自定义纹理
-    startButton = Button(startButtonX, startButtonY, buttonWidth, buttonHeight, startButtonTexture);
-    exitButton = Button(exitButtonX, exitButtonY, buttonWidth, buttonHeight, exitButtonTexture);
-    background = std::make_shared<Map>("../resources/images/realbg-menu.png");
-}
+    startButton=Button(startButtonX,startButtonY,buttonWidth,buttonHeight,"../resources/images/start.png");
+    exitButton=Button(exitButtonX,exitButtonY,exitButttonWidth,buttonHeight,"../resources/images/exit.png");
+    background=Map("../resources/images/menuBg.png");
+ }
 
 void MenuState::handleInput(RenderWindow& window){
     Event event;
@@ -64,8 +56,9 @@ void MenuState::update(){
 
 void MenuState::render(RenderWindow& window){
     window.clear(Color::Black);
-    background->draw(window);
+    background.draw(window);
     startButton.draw(window);
     exitButton.draw(window);
+    
     window.display();
 }

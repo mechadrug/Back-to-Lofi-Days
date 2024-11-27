@@ -21,3 +21,4 @@ class GameState{//游戏关卡虚基类
 };
 
 #endif
+
