@@ -2,4 +2,4 @@
 
 How the girl met her cat?
 
-![效果图](resources\images\view.png)
+![效果图](view.png)
