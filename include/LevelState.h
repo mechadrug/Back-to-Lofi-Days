@@ -1,13 +1,23 @@
 #ifndef LEVELSTATE_H
 #define LEVELSTATE_H
 
-#include "GameState.h"
-
+#include<iostream>
+#include<fstream>
+#include"../include/json.hpp"
+#include"Player.h"
+#include"Map.h"
 class LevelState: public GameState{
     private:
     Game*game;
     Text message;
     Font font;
+    Map background;
+    MovableObject girl;
+    json loading;
+    int jsonArrayWidth;
+    int jsonArrayHeight;
+    vector<vector<Tile>> mapData;
+    Clock clock;
     public:
     LevelState(Game* game);
     void handleInput(RenderWindow& window) override;
@@ -17,5 +27,6 @@ class LevelState: public GameState{
         return "LevelState";
     }
 };
+
 
 #endif

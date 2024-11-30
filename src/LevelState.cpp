@@ -1,22 +1,26 @@
 #include "../include/LevelState.h"
 #include "../include/EndState.h"
 #include "../include/Game.h"
-#include<iostream>
+#include "../include/TexturePool.h"
+
+
+
 LevelState::LevelState(Game*game): game(game){
     if (game == nullptr) {
         throw std::runtime_error("Game pointer is null in LevelState constructor!");
     }
-    if (!font.loadFromFile("../resources/fonts/hk4e_zh-cn.ttf")) {
-            throw runtime_error("Failed to load font!");
-        }
-
-        // 创建文本对象，显示进入 LevelState 的信息
-        message.setFont(font);
-        message.setString("Entered LevelState!");
-        message.setCharacterSize(30); // 字体大小
-        message.setFillColor(Color::White);
-        message.setPosition(100, 100); // 文本位置
-    std::cout << "Entering LevelState..." << std::endl;
+    loading = load_map("../configs/testmap.json");
+    jsonArrayWidth = loading["layers"][0]["width"];
+    jsonArrayHeight = loading["layers"][0]["height"];
+    mapData = load_map_data(loading, jsonArrayWidth, jsonArrayHeight);
+    Texture&texture= TexturePool::getTexture("../resources/images/movetest.png");
+    
+    background=Map("../resources/images/MapOne.png");
+    float sx=background.returnScaleX();
+    float sy=background.returnScaleY();
+    float gsx=32.f*sx;
+    float gsy=16.f*sy;
+    girl = MovableObject(gsx,gsy,texture,sx,sy);
 }
 void LevelState::handleInput(RenderWindow& window){
     Event event;
@@ -32,10 +36,14 @@ void LevelState::handleInput(RenderWindow& window){
     }
 }
 
-void LevelState::update(){}
+void LevelState::update(){
+    float deltaTime=clock.restart().asSeconds();//获取帧时间差
+    girl.update(deltaTime,mapData,16*background.returnScaleX(),16*background.returnScaleY());
+}
 
 void LevelState::render(RenderWindow& window){
     window.clear();
-    window.draw(message);
+    background.draw(window);
+    girl.render(window);
     window.display();
 }
