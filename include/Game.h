@@ -11,8 +11,6 @@ class Game{
     private:
     RenderWindow window;
     unique_ptr<GameState> currentState;
-    //View view;//用于缩放
-
     public:
     Game();
     ~Game();

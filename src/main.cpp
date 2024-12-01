@@ -14,5 +14,4 @@ int main(){
   }
   TexturePool::clear();
   return EXIT_SUCCESS;
-  //cout<<"hello"<<endl;
 }

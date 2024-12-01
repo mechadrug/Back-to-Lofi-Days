@@ -19,5 +19,5 @@ class TexturePool{
     static void clear();
 
 };
-
+//纹理池
 #endif 

@@ -11,8 +11,6 @@ Map::Map(const string &bgFile){
     scaleX = static_cast<float>(windowWidth) / static_cast<float>(texture.getSize().x);
     scaleY = static_cast<float>(windowHeight) / static_cast<float>(texture.getSize().y);
     bgSprite.setScale(scaleX, scaleY);
-    cout<<scaleX<<" "<<scaleY<<endl;
-
 }
 void Map::draw(RenderWindow& window){
     window.draw(bgSprite);

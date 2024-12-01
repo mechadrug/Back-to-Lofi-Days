@@ -9,7 +9,7 @@ LevelState::LevelState(Game*game): game(game){
     if (game == nullptr) {
         throw std::runtime_error("Game pointer is null in LevelState constructor!");
     }
-    loading = load_map("../configs/testmap.json");
+    loading = load_map("../configs/MapOne.json");
     jsonArrayWidth = loading["layers"][0]["width"];
     jsonArrayHeight = loading["layers"][0]["height"];
     mapData = load_map_data(loading, jsonArrayWidth, jsonArrayHeight);
@@ -33,12 +33,15 @@ void LevelState::handleInput(RenderWindow& window){
                 game->changeState(make_unique<EndState>(game));
             }
         }
+        if(girl.nextmap(mapData,16.0*background.returnScaleX(),16.0*background.returnScaleY())){
+            game->changeState(make_unique<EndState>(game));
+        }
     }
 }
 
 void LevelState::update(){
     float deltaTime=clock.restart().asSeconds();//获取帧时间差
-    girl.update(deltaTime,mapData,16*background.returnScaleX(),16*background.returnScaleY());
+    girl.update(deltaTime,mapData,16.0*background.returnScaleX(),16.0*background.returnScaleY());
 }
 
 void LevelState::render(RenderWindow& window){

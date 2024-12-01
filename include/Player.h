@@ -27,9 +27,10 @@ class MovableObject{
     public:
     MovableObject()=default;
     MovableObject(float x, float y, const Texture& texture,float sx,float sy);
-    void update(float deltaTime, const vector<vector<Tile>>& mapData, int tileWidth, int tileHeight);
+    void update(float deltaTime, const vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
     void render(RenderWindow& window);
-    bool checkCollision(float newX,float newY, const vector<vector<Tile>>&mapData, int tileWidth, int tileHeight,int select);//检测角色碰撞
+    bool checkCollision(float newX,float newY, const vector<vector<Tile>>&mapData, float tileWidth, float tileHeight,int select);//检测角色碰撞
+    bool nextmap(const vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
 };
 
 json load_map(const string& filename);

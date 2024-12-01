@@ -25,7 +25,7 @@ class MenuState: public GameState{
     void render(RenderWindow& window) override;
      const char* getName() const override {
          return "MenuState";
-     }//new
+     }
     
 };
 
