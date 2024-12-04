@@ -11,7 +11,13 @@ class LevelState: public GameState{
     Game*game;
     Text message;
     Font font;
-    Map background;
+    Map background1;
+    Map background2;
+    Map background3;
+    bool isBg1;
+    bool isBg2;
+    bool isBg3;
+    bool changeMap;
     MovableObject girl;
     json loading;
     int jsonArrayWidth;

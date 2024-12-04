@@ -118,6 +118,9 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp",
-        "testformove": "cpp"
+        "testformove": "cpp",
+        "chrono": "cpp",
+        "charconv": "cpp",
+        "format": "cpp"
     }
 }

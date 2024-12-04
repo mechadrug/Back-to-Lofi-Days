@@ -4,7 +4,7 @@
 
 EndState::EndState(Game* game) : game(game) , subtitleYPos(-50.f), subtitleSpeed(100.f){
     //加载字体
-    if (!font.loadFromFile("../resources/fonts/hk4e_zh-cn.ttf")) {
+    if (!font.loadFromFile("../resources/fonts/yuanshen.ttf")) {
         std::cerr << "Failed to load font!" << std::endl;
         return;
     }
