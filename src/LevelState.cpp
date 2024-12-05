@@ -10,6 +10,8 @@ LevelState::LevelState(Game*game): game(game){
         throw std::runtime_error("Game pointer is null in LevelState constructor!");
     }
     loading = load_map("../configs/MapTwo.json");
+    loading1 = load_map("../configs/MapThree.json");
+    loading2 = load_map("../configs/MapFour.json");
     jsonArrayWidth = loading["layers"][0]["width"];
     jsonArrayHeight = loading["layers"][0]["height"];
     mapData = load_map_data(loading, jsonArrayWidth, jsonArrayHeight);
@@ -17,7 +19,7 @@ LevelState::LevelState(Game*game): game(game){
     
     background1=Map("../resources/images/MapTwo.png");
     background2=Map("../resources/images/MapThree.png");
-    background2=Map("../resources/images/MapFour.png");
+    background3=Map("../resources/images/MapFour.png");
     isBg1=true;
     isBg2=false;
     isBg3=false;
@@ -26,6 +28,13 @@ LevelState::LevelState(Game*game): game(game){
     float gsx=32.f*sx;
     float gsy=16.f*sy;
     girl = MovableObject(gsx,gsy,texture,sx,sy);
+    Vector2u windowSize = game->getWindow().getSize();
+    
+    // 计算窗口四个角的位置
+    topLeft=Vector2f(0.f, 0.f);  // 左上角
+    topRight=Vector2f(static_cast<float>(windowSize.x), 0.f);  // 右上角
+    bottomLeft=Vector2f(0.f, static_cast<float>(windowSize.y));  // 左下角
+    bottomRight=Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));  // 右下角
 }
 void LevelState::handleInput(RenderWindow& window){
     Event event;
@@ -60,18 +69,38 @@ void LevelState::update(){
         isBg1=false;
         isBg2=true;
         changeMap=true;
+        mapData = load_map_data(loading1, jsonArrayWidth, jsonArrayHeight);
+        float gsx=32.f*background1.returnScaleX();
+        float gsy=32.f*background1.returnScaleY();
+        girl.changePositionBetweenMap(gsx,bottomLeft.y-gsy);
+        //cout<<i<<endl;
     }else if(girl.changeMap(mapData,16.0*background1.returnScaleX(),16.0*background1.returnScaleY())==8){
         isBg1=true;
         isBg2=false;
         changeMap=true;
+        mapData = load_map_data(loading, jsonArrayWidth, jsonArrayHeight);
+        float gsx=48.f*background1.returnScaleX();
+        float gsy=32.f*background1.returnScaleY();
+        girl.changePositionBetweenMap(bottomRight.x-gsx,bottomRight.y-gsy);
+        //cout<<i<<endl;
     }else if(girl.changeMap(mapData,16.0*background1.returnScaleX(),16.0*background1.returnScaleY())==9){
         isBg2=false;
         isBg3=true;
         changeMap=true;
+        mapData = load_map_data(loading2, jsonArrayWidth, jsonArrayHeight);
+        float gsx=32.f*background1.returnScaleX();
+        float gsy=16.f*background1.returnScaleY();
+        girl.changePositionBetweenMap(topRight.x-gsx,gsy);
+        //cout<<i<<endl;
     }else if(girl.changeMap(mapData,16.0*background1.returnScaleX(),16.0*background1.returnScaleY())==10){
         isBg2=true;
         isBg3=false;
         changeMap=true;
+        mapData = load_map_data(loading1, jsonArrayWidth, jsonArrayHeight);
+        float gsx=64.f*background1.returnScaleX();
+        float gsy=32.f*background1.returnScaleY();
+        girl.changePositionBetweenMap(bottomRight.x-gsx,bottomRight.y-gsy);
+        //cout<<i<<endl;
     }
 }
 

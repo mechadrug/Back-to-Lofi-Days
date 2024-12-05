@@ -20,10 +20,17 @@ class LevelState: public GameState{
     bool changeMap;
     MovableObject girl;
     json loading;
+    json loading1;
+    json loading2;
     int jsonArrayWidth;
     int jsonArrayHeight;
     vector<vector<Tile>> mapData;
     Clock clock;
+
+    Vector2f topLeft;
+    Vector2f topRight;
+    Vector2f bottomLeft;
+    Vector2f bottomRight;
     public:
     LevelState(Game* game);
     void handleInput(RenderWindow& window) override;

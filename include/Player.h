@@ -62,6 +62,11 @@ class MovableObject{
     bool checkwater( vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
     bool checkIce(float newX,float newY, vector<vector<Tile>>&mapData, float tileWidth, float tileHeight);
     int changeMap(vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
+    void changePositionBetweenMap(float newX,float newY){
+        position.x=newX;
+        position.y=newY;
+        sprite.setPosition(position);
+    }
     //void attack();
     //void useInvisibility();
     //void dodge();
