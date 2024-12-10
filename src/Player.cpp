@@ -1,6 +1,6 @@
 #include "../include/Player.h"
 MovableObject::MovableObject(float x, float y, const sf::Texture& texture,float sx,float sy)
-        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(700.f),jumpHeight(533.f),isJumping(false),inertiaSpeed(0.f) {
+        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),inertiaSpeed(0.f) {
         sprite.setPosition(position);
         sprite.setTexture(texture);
         sprite.setScale(sx,sy);
@@ -219,4 +219,11 @@ vector<vector<Tile>> load_map_data(const json&map_data,int width,int height){
     }
     return mapData;
 }
+//->x
+//|
+//y
+//0000
+//0010->(1,2)1*16.0*scaley,2*16.0*scalex
+//0100->(2,1)
+//0000
 

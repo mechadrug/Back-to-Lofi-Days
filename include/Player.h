@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "../include/json.hpp"
+#include "json.hpp"
 #include <fstream>
 #include <iostream>
 //#include <vector>
@@ -66,8 +66,15 @@ class MovableObject{
         position.x=newX;
         position.y=newY;
         sprite.setPosition(position);
+    };
+    Vector2f getPosition() const {
+        return position; // 返回存储的实际位置
     }
-    //void attack();
+    
+
+
+};
+//void attack();
     //void useInvisibility();
     //void dodge();
 
@@ -82,9 +89,6 @@ class MovableObject{
 
     // bool getIsDodging() const { return isDodging; }
     // void setIsDodging(bool dodging) { isDodging = dodging; }
-
-
-};
 // 敌人类：静止不动的敌人，检测玩家并自动攻击
 // class Enemy {
 // private:
