@@ -8,6 +8,7 @@
 #include"Map.h"
 #include"TexturePool.h"
 #include"MapManager.h"
+#include"Slime.h"
 class LevelState: public GameState{
     private:
     Game*game;
@@ -16,7 +17,6 @@ class LevelState: public GameState{
     MapManager manager;
     MovableObject girl;
     Clock clock;
-
     Vector2f topLeft;
     Vector2f topRight;
     Vector2f bottomLeft;

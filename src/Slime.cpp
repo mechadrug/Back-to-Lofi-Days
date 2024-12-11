@@ -1,11 +1,11 @@
-#include "Slime.h"
+#include "../include/Slime.h"
 
 Slime::Slime(float x, float y, const sf::Texture& texture, int health, 
-             float attackDamage, float attackCooldown, int detectionRange)
-    : movable(x, y, texture, 1.0f, 1.0f), health(health), attackDamage(attackDamage),
+             int attackDamage, float attackCooldown, int detectionRange)
+    : movable(x, y, texture, 1.8f, 1.8f), health(health), attackDamage(attackDamage),
       attackCooldown(attackCooldown), detectionRange(detectionRange), isDead(false) {}
-
-void Slime::update(std::vector<std::vector<Tile>>& mapData, MovableObject& target) {
+//注意这里的1.8f是暂时值之后再改动
+void Slime::update(MovableObject& target) {
     // 检测是否有目标角色在附近
     float slimeX = movable.getPosition().x;
     float slimeY = movable.getPosition().y;
@@ -14,10 +14,11 @@ void Slime::update(std::vector<std::vector<Tile>>& mapData, MovableObject& targe
     float targetY = target.getPosition().y;
 
     // 检测目标是否在攻击范围内（上下左右1格）
-    if (abs(slimeX - targetX) <= detectionRange * 16.0f && abs(slimeY - targetY) <= detectionRange * 16.0f) {
+    if (abs(slimeX - targetX) <= 1.8f*detectionRange * 16.0f && abs(slimeY - targetY) <= 1.8f*detectionRange * 16.0f) {
         // 触发攻击
-        if (attackClock.getElapsedTime().asSeconds() >= attackCooldown) {
+        if (attackClock.getElapsedTime().asSeconds() >= attackCooldown&&this->isAlive()) {
             attack(target);
+            cout<<"Bob attack girl!"<<endl;
             attackClock.restart();
         }
     }
@@ -25,7 +26,11 @@ void Slime::update(std::vector<std::vector<Tile>>& mapData, MovableObject& targe
 
 void Slime::attack(MovableObject& target) {
     // 攻击逻辑
-    //target.takeDamage(attackDamage);
+    if(target.InvisibleForSlime()){
+        cout<<"I cant see you"<<endl;
+        return;
+    }
+    target.takeDamage(attackDamage);
 }
 
 void Slime::takeDamage(int damage) {

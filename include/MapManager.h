@@ -7,6 +7,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "TexturePool.h"
+#include "Slime.h"
 class MapManager {
 private:
     vector<Map> backgrounds;  // 存储所有背景地图
@@ -17,6 +18,10 @@ private:
     int jsonArrayHeight;
     Texture& brokenWallTexture = TexturePool::getTexture("../resources/images/brokenWall.png");
     Sprite brokenWallSprite;
+    bool firstLoadSlime;
+
+    vector<Slime> slimes;
+    Texture&slime=TexturePool::getTexture("../resources/images/Bob/slimeBob.png");
 
 public:
     MapManager();
@@ -26,6 +31,8 @@ public:
     void renderMap(RenderWindow& window, const vector<vector<Tile>>& mapData);
     Map& getCurrentBackground();
     vector<vector<Tile>>& getCurrentMapData();
+    void updateSlime(MovableObject&girl);
+    vector<Slime>& getSlimes();
 };
 
 #endif

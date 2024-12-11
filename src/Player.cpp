@@ -1,6 +1,7 @@
 #include "../include/Player.h"
+#include "../include/Slime.h"
 MovableObject::MovableObject(float x, float y, const sf::Texture& texture,float sx,float sy)
-        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),inertiaSpeed(0.f) {
+        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),inertiaSpeed(0.f),Health(10),Attack(2), isDead(false),attackCooldown(1.f),lastAttackTime(chrono::steady_clock::now()){
         sprite.setPosition(position);
         sprite.setTexture(texture);
         sprite.setScale(sx,sy);
@@ -98,7 +99,7 @@ void MovableObject::updateStandingTime(float newX,float newY,vector<std::vector<
     }
 }
 
-void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, float tileWidth, float tileHeight){
+void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<Slime>&slimes){
         // 使用 deltaTime 来平滑速度
         //1:向右检测,应该检测右上和右下
         //2:向左检测,应该检测左上和左下
@@ -114,6 +115,13 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             position.y += (speed/2) * deltaTime;
         }//检测掉落
         //普通墙体
+        if (Keyboard::isKeyPressed(Keyboard::J)) {
+        attack(slimes);  // 调用攻击方法
+        }
+        if(Keyboard::isKeyPressed(Keyboard::H)&& canUseInvisibility()){
+            startInvisibility();
+        }
+        checkInvisibilityCooldowm(deltaTime);
         if(!isOnIce){
             inertiaSpeed=0; 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
@@ -185,7 +193,47 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
 void MovableObject::render(RenderWindow&window){
     window.draw(sprite);
 }
+void MovableObject::attack(vector<Slime>& slimes){
+    // 只有在攻击冷却时间过去后才能攻击
+    if (chrono::duration<float>(chrono::steady_clock::now() - lastAttackTime).count() >= attackCooldown) {
+        // 遍历所有史莱姆并检测攻击范围
+        for (auto& slime : slimes) {
+            float distanceX = abs(position.x - slime.getPosition().x);
+            float distanceY = abs(position.y - slime.getPosition().y);
 
+            // 假设攻击范围是两格（每格16像素）
+            if (distanceX <= 32.0f*1.8f && distanceY <= 32.0f*1.8f && slime.isAlive()) {
+                slime.takeDamage(Attack);  // 对史莱姆造成伤害
+                cout << "Player attacks slime!" << endl;
+            }
+        }
+
+        // 重置攻击时间
+        lastAttackTime = chrono::steady_clock::now();
+    }
+}
+
+void MovableObject::startInvisibility(){
+    if(canUseInvisibility()){
+        cout<<"girl use invisibility"<<endl;
+        isInvisible=true;
+        invisibilityDuration=2.0f;
+        lastInvisibilityTime=chrono::steady_clock::now();
+    }
+}
+bool MovableObject::canUseInvisibility(){
+    return chrono::duration<float>(chrono::steady_clock::now()-lastInvisibilityTime).count()>=10.0f;
+}
+
+void MovableObject::checkInvisibilityCooldowm(float deltaTime){
+    if(isInvisible){
+        invisibilityDuration -=deltaTime;
+        if(invisibilityDuration<=0){
+            cout<<"invisibility goes away"<<endl;
+            isInvisible=false;
+        }
+    }
+}
 json load_map(const string& filename){
     ifstream file(filename);
     json map_data;

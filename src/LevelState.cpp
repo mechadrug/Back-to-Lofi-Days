@@ -19,8 +19,6 @@ LevelState::LevelState(Game*game): game(game),manager(){
     float gsx=32.f*sx;
     float gsy=16.f*sy;
     girl = MovableObject(gsx,gsy,texture,sx,sy);
-    
-    
     //计算窗口四个角的位置
     Vector2u windowSize = game->getWindow().getSize();
     topLeft=Vector2f(0.f, 0.f);  // 左上角
@@ -50,6 +48,10 @@ void LevelState::handleInput(RenderWindow& window){
             game->changeState(make_unique<EndState>(game));
             return;
         }
+        if(!girl.isAlive()){
+            game->changeState(make_unique<EndState>(game));
+            return;
+        }
 
     }
 }
@@ -57,8 +59,8 @@ void LevelState::handleInput(RenderWindow& window){
 void LevelState::update(){
 
     float deltaTime=clock.restart().asSeconds();//获取帧时间差
-    girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY());
-    
+    girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes());
+    manager.updateSlime(girl);
     if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==7){
         float gsx=32.f*manager.getCurrentBackground().returnScaleX();
         float gsy=bottomLeft.y-32.f*manager.getCurrentBackground().returnScaleY();
@@ -79,6 +81,7 @@ void LevelState::update(){
         float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
         manager.switchMap(1,girl,gsx,gsy);
     }
+    
 }
 
 void LevelState::render(RenderWindow& window){

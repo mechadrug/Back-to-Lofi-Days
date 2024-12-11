@@ -11,6 +11,8 @@ using namespace std;
 using namespace sf;
 using json=nlohmann::json;
 
+class Slime;
+
 struct Tile{
     int tileType;
     bool isCollidable;
@@ -36,8 +38,8 @@ class MovableObject{
     float jumpHeight;//跳跃高度
     bool isJumping;//是否在跳跃当中
     float inertiaSpeed;//在冰面上的惯性速度
-    //int Health;//:血量
-    //int Attack;//:攻击力
+    int Health;//:血量
+    int Attack;//:攻击力
     //等待实现的功能:近距离攻击;隐身;躲避
     //键位安排:
     //A: LEFT (已经实现了)
@@ -46,15 +48,20 @@ class MovableObject{
     //J: 近距离攻击 (未实现,靠近敌人一格的时候点击J可以攻击,每秒一次,造成伤害)
     //H: HIDE 隐身 (未实现,每十秒钟可以使用一次,按下之后敌人无法攻击,持续两秒(看不到玩家))
     //P: DODGING 躲避 (往前瞬移两格,有适当的无敌帧时间)
-    //bool isInvisible;
-    //float invisibilityDuration;
-    //bool isDodging;
+    bool isInvisible; //是否可视
+    float invisibilityDuration; //隐身的持续时间
+    chrono::steady_clock::time_point lastInvisibilityTime;  //上次隐身使用时间
+    float invisibilityCooldown;  //隐身的冷却时间
+    bool isDodging;
+    bool isDead;
+    float attackCooldown;
+    chrono::steady_clock::time_point lastAttackTime;
 
     public:
     //等待实现方法:检测冰墙(增加滑动);检测碎墙(站上去之后过一秒这个墙就不能站人了);检测水域(主角掉进水里,直接死亡,跳到结算界面)
     MovableObject()=default;
     MovableObject(float x, float y, const Texture& texture,float sx,float sy);
-    void update(float deltaTime, vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
+    void update(float deltaTime, vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<Slime>&slimes);
     void render(RenderWindow& window);
     void updateStandingTime(float newX,float newY, vector<std::vector<Tile>>& mapData,float tileWidth, float tileHeight);
     bool checkCollision(float newX,float newY, vector<vector<Tile>>&mapData, float tileWidth, float tileHeight,int select);//检测角色碰撞
@@ -70,9 +77,21 @@ class MovableObject{
     Vector2f getPosition() const {
         return position; // 返回存储的实际位置
     }
-    
+    void takeDamage(int slimeDamage){
+        Health-=slimeDamage;
+        if(Health<=0)isDead=true;
+    }
+    bool isAlive(){
+        return !isDead;
+    }
+    void attack(vector<Slime>&slimes);
 
-
+    void startInvisibility();
+    void checkInvisibilityCooldowm(float deltaTime);
+    bool canUseInvisibility();
+    bool InvisibleForSlime(){
+        return isInvisible;
+    }
 };
 //void attack();
     //void useInvisibility();

@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 #include "Player.h"
+#include "Map.h"
 
 class Slime {
 private:
@@ -12,14 +13,14 @@ private:
     bool isDead;                     // 是否死亡
     sf::Clock attackClock;           // 攻击计时器
     float attackCooldown;            // 攻击冷却时间
-    float attackDamage;              // 攻击伤害
+    int attackDamage;              // 攻击伤害
     int detectionRange;              // 检测范围（每方向一格）
 
 public:
-    Slime(float x, float y, const sf::Texture& texture, int health = 100, 
-          float attackDamage = 10.f, float attackCooldown = 1.f, int detectionRange = 1);
+    Slime(float x, float y, const sf::Texture& texture, int health = 8, 
+          int attackDamage = 1, float attackCooldown = 1.f, int detectionRange = 1);
 
-    void update(std::vector<std::vector<Tile>>& mapData, MovableObject& target);
+    void update(MovableObject& target);
     void attack(MovableObject& target);
     void takeDamage(int damage);
     void render(sf::RenderWindow& window);
