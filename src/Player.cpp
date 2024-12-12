@@ -1,7 +1,7 @@
 #include "../include/Player.h"
 #include "../include/Slime.h"
 MovableObject::MovableObject(float x, float y, const sf::Texture& texture,float sx,float sy)
-        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),inertiaSpeed(0.f),Health(10),Attack(2), isDead(false),attackCooldown(1.f),lastAttackTime(chrono::steady_clock::now()){
+        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),inertiaSpeed(0.f),Health(10),Attack(2), isDead(false),attackCooldown(1.f),lastAttackTime(chrono::steady_clock::now()),intoWind(false){
         sprite.setPosition(position);
         sprite.setTexture(texture);
         sprite.setScale(sx,sy);
@@ -106,13 +106,36 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
         //3:向上检测,应该检测左上和右上
         //4;向下检测,应该检测左下和右下
         bool isOnIce = false;
+        bool isOnMucous = false;
+        bool isOnLadder = false;
+        bool isInWindLR = false;
+        bool isInWindUD = false;
+        int left = position.x / tileWidth;
+        int right = (position.x + sprite.getGlobalBounds().width) / tileWidth;
+        int top = position.y / tileHeight;
+        int bottom = (position.y + sprite.getGlobalBounds().height) / tileHeight;
+
+        if (mapData[bottom+1][left].isMucous || mapData[bottom+1][right].isMucous) {
+            isOnMucous = true;
+        }
+        if (mapData[bottom][left].isLadder || mapData[bottom][right].isLadder) {
+            isOnLadder = true;
+        }
+        if (mapData[bottom][left].isWindLR || mapData[bottom][right].isWindLR) {
+            isInWindLR = true;
+        }
+        if (mapData[bottom][left].isWindUD || mapData[bottom][right].isWindUD) {
+            isInWindUD = true;
+        }
         if (checkIce(position.x, position.y+ speed * deltaTime, mapData, tileWidth, tileHeight)) {
             isOnIce = true;
         }
 
         updateStandingTime(position.x,position.y+speed*deltaTime,mapData,tileWidth,tileHeight);
         if(!checkCollision(position.x, position.y + speed * deltaTime, mapData, tileWidth, tileHeight,4)){
-            position.y += (speed/2) * deltaTime;
+            if (!isOnLadder) {
+            position.y += (speed / 2) * deltaTime;
+        }
         }//检测掉落
         //普通墙体
         if (Keyboard::isKeyPressed(Keyboard::J)) {
@@ -122,16 +145,30 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             startInvisibility();
         }
         checkInvisibilityCooldowm(deltaTime);
+        // if (isOnMucous) {
+        //     speed *= 0.5f;
+        //     jumpHeight *= 0.7f;
+        // } else {
+        //     speed = 350.f; // 恢复默认速度
+        //     jumpHeight = 533.f; // 恢复默认跳跃高度
+        // }
         if(!isOnIce){
             inertiaSpeed=0; 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
             if (!checkCollision(position.x + speed * deltaTime, position.y, mapData, tileWidth, tileHeight,1)) {
+
                 position.x += speed * deltaTime;//向右移动
+                if(isOnMucous){
+                    position.x-=0.3*speed*deltaTime;
+                }
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
             if (!checkCollision(position.x - speed * deltaTime, position.y, mapData, tileWidth, tileHeight,2)) {
                 position.x -= speed * deltaTime;//向左移动
+                if(isOnMucous){
+                    position.x+=0.3*speed*deltaTime;
+                }
             }
         }
         }
@@ -145,6 +182,9 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
                 inertiaSpeed=speed;
                 if (!checkCollision(position.x + inertiaSpeed * deltaTime, position.y, mapData, tileWidth, tileHeight,1)) {
                     position.x += inertiaSpeed * deltaTime;//向右移动
+                    if(isOnMucous){
+                    position.x-=0.3*speed*deltaTime;
+                }
                 }
                 ks=1.0f;
             }
@@ -152,6 +192,9 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
                 inertiaSpeed=-speed;
                 if (!checkCollision(position.x - inertiaSpeed * deltaTime, position.y, mapData, tileWidth, tileHeight,2)) {
                     position.x += inertiaSpeed * deltaTime;//向左移动
+                    if(isOnMucous){
+                    position.x+=0.3*speed*deltaTime;
+                }
                 }
                 ks=1.0f;
             }
@@ -166,12 +209,47 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }
 
         }
+        // 风场效果
+        if (isInWindLR) {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                position.x += (speed * 1.2f) * deltaTime;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                position.x -= (speed * 1.2f) * deltaTime;
+            }
+        }
+        // if (isInWindUD) {
+
+        //     if (verticalSpeed > 0) { // 下落
+        //         verticalSpeed *= 0.7f;
+        //     } else if (verticalSpeed < 0) { // 上升
+        //         verticalSpeed *= 1.5f;
+        //     }
+
+        // }
+        // 梯子效果
+        if (isOnLadder) {
+            verticalSpeed = 0;
+            isJumping = false;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+                position.y -= 0.8*speed * deltaTime;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+                position.y += 0.8*speed * deltaTime;
+            }
+        }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !isJumping) {
             isJumping = true;
             verticalSpeed = -jumpHeight;//跳跃时给予一个负的初速度
+            if(isOnMucous){
+                verticalSpeed*=0.7f;
+            }
         }
         if(isJumping){
             if(!checkCollision(position.x, position.y - (speed/2) * deltaTime, mapData, tileWidth, tileHeight,3)&&verticalSpeed<0){
+                if(isInWindUD){
+                    position.y+=verticalSpeed*deltaTime;
+                }
                 position.y+=verticalSpeed*deltaTime;
                 verticalSpeed+=gravity*deltaTime;
             }//上升
@@ -180,6 +258,9 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }//停止上升
             if(verticalSpeed>=0){
                 if(!checkCollision(position.x, position.y + (speed/2) * deltaTime, mapData, tileWidth, tileHeight,4)){
+                    if(isInWindUD){
+                        position.y-=0.2*verticalSpeed*deltaTime;
+                    }
                     position.y+=verticalSpeed*deltaTime;
                     verticalSpeed+=gravity*deltaTime;
                 }
@@ -252,16 +333,20 @@ vector<vector<Tile>> load_map_data(const json&map_data,int width,int height){
         for(int x=0;x<40;x++){
             
             mapData[y][x].tileType=data[index++];
-            mapData[y][x].isCollidable=(mapData[y][x].tileType==1||mapData[y][x].tileType==2||mapData[y][x].tileType==3||mapData[y][x].tileType==4);//1234可碰撞
+            mapData[y][x].isCollidable=(mapData[y][x].tileType==1||mapData[y][x].tileType==2||mapData[y][x].tileType==4||mapData[y][x].tileType==9);//124可碰撞
             mapData[y][x].isBrokenable=(mapData[y][x].tileType==4);//4是碎墙,是否能够站立由碰撞检测决定
-            mapData[y][x].isIce=(mapData[y][x].tileType==3);//3是冰
-            mapData[y][x].isWater=(mapData[y][x].tileType==5);//5是水
-            mapData[y][x].from2intoMap3=(mapData[y][x].tileType==7);//map2->map3
-            mapData[y][x].from3intoMap2=(mapData[y][x].tileType==8);//map3->map2
-            mapData[y][x].from3intoMap4=(mapData[y][x].tileType==9);//map3->map4
-            mapData[y][x].from4intoMap3=(mapData[y][x].tileType==10);//map4->map3
-            mapData[y][x].intoExit=(mapData[y][x].tileType==11);//map4->exit
-            mapData[y][x].isChange=(mapData[y][x].tileType==7||mapData[y][x].tileType==8||mapData[y][x].tileType==9||mapData[y][x].tileType==10);//共性
+            mapData[y][x].isIce=(mapData[y][x].tileType==2);//2是冰
+            mapData[y][x].isWater=(mapData[y][x].tileType==3);//3是水
+            mapData[y][x].isMucous=(mapData[y][x].tileType==9);//9是粘液
+            mapData[y][x].isLadder=(mapData[y][x].tileType==21);//21是梯子
+            mapData[y][x].isWindLR=(mapData[y][x].tileType==22);//21是梯子
+            mapData[y][x].isWindUD=(mapData[y][x].tileType==23);//21是梯子
+            // mapData[y][x].from2intoMap3=(mapData[y][x].tileType==7);//map2->map3
+            // mapData[y][x].from3intoMap2=(mapData[y][x].tileType==8);//map3->map2
+            // mapData[y][x].from3intoMap4=(mapData[y][x].tileType==9);//map3->map4
+            // mapData[y][x].from4intoMap3=(mapData[y][x].tileType==10);//map4->map3
+            mapData[y][x].intoExit=(mapData[y][x].tileType==6);//map4->exit
+            //mapData[y][x].isChange=(mapData[y][x].tileType==7||mapData[y][x].tileType==8||mapData[y][x].tileType==9||mapData[y][x].tileType==10);//共性
             
         }
     }

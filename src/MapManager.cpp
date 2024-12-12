@@ -16,7 +16,7 @@ void MapManager::loadMapData(const std::string& mapConfigFile) {
         float sy=backgrounds[0].returnScaleY();
         for(int y1=0;y1<30;y1++){
             for(int x1=0;x1<40;x1++){
-                if(mapData[y1][x1].tileType==2){
+                if(mapData[y1][x1].tileType==91){
                     slimes.emplace_back(x1*16.f*sx,y1*16.f*sy,slime);
 
                 }
@@ -62,7 +62,7 @@ void MapManager::renderMap(RenderWindow& window, const std::vector<std::vector<T
     // 渲染碎墙等元素
     for (int y = 0; y < 30; y++) {
         for (int x = 0; x < 40; x++) {
-            if (mapData[y][x].tileType == 4 && mapData[y][x].isCollidable) {
+            if (mapData[y][x].tileType == 4 && !mapData[y][x].isCollidable) {
                 float tileX = x * 16.0f * backgrounds[currentMapIndex].returnScaleX();
                 float tileY = y * 16.0f * backgrounds[currentMapIndex].returnScaleY();
                 brokenWallSprite.setPosition(tileX, tileY);

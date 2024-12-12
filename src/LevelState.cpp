@@ -9,9 +9,9 @@ LevelState::LevelState(Game*game): game(game),manager(){
     if (game == nullptr) {
         throw std::runtime_error("Game pointer is null in LevelState constructor!");
     }
-    manager.loadBackgrounds({"../resources/images/MapTwo.png", "../resources/images/MapThree.png", "../resources/images/MapFour.png"});
+    manager.loadBackgrounds({"../resources/images/map1.png", "../resources/images/MapThree.png", "../resources/images/MapFour.png"});
     
-    manager.loadMapData("../configs/Map1.json");
+    manager.loadMapData("../configs/map0.json");
     Texture&texture= TexturePool::getTexture("../resources/images/movetest.png");
 
     float sx=manager.getCurrentBackground().returnScaleX();

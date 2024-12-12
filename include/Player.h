@@ -20,6 +20,10 @@ struct Tile{
     bool isBrokenable;
     bool isWater;
     bool intoExit;
+    bool isMucous;
+    bool isWindUD;
+    bool isWindLR;
+    bool isLadder;
     bool from3intoMap2;
     bool from2intoMap3;
     bool from3intoMap4;
@@ -40,6 +44,7 @@ class MovableObject{
     float inertiaSpeed;//在冰面上的惯性速度
     int Health;//:血量
     int Attack;//:攻击力
+    bool intoWind;//进入风场
     //等待实现的功能:近距离攻击;隐身;躲避
     //键位安排:
     //A: LEFT (已经实现了)
