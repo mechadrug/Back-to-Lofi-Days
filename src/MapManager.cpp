@@ -37,17 +37,17 @@ void MapManager::switchMap(int mapIndex, MovableObject& girl,float x,float y) {
     if (mapIndex < 0 || mapIndex >= backgrounds.size()) {
         throw std::runtime_error("Invalid map index!");
     }
-    currentMapIndex = mapIndex;
+    currentMapIndex = mapIndex-1;
 
     // 重新加载地图数据
-    loadMapData("../configs/Map" + std::to_string(mapIndex + 1) + ".json");
+    loadMapData("../configs/finalMap" + std::to_string(mapIndex) + ".json");
     girl.changePositionBetweenMap(x,y);
     slimes.clear();
     float sx=backgrounds[currentMapIndex].returnScaleX();
     float sy=backgrounds[currentMapIndex].returnScaleY();
     for(int y1=0;y1<30;y1++){
         for(int x1=0;x1<40;x1++){
-            if(mapData[y1][x1].tileType==2){
+            if(mapData[y1][x1].tileType==100){
                 slimes.emplace_back(x1*16.f*sx,y1*16.f*sy,slime);
 
             }

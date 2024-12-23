@@ -61,11 +61,7 @@ int MovableObject::changeMap(vector<vector<Tile>>& mapData, float tileWidth, flo
         int right=(position.x+sprite.getGlobalBounds().width)/tileWidth;
         int top=position.y/tileHeight;
         int bottom=(position.y+sprite.getGlobalBounds().height)/tileHeight;
-        if(mapData[top][right].tileType==7||mapData[bottom][right].tileType==7)return 7;
-        if(mapData[top][left].tileType==8||mapData[bottom][left].tileType==8)return 8;
-        if(mapData[bottom][right].tileType==9||mapData[bottom][left].tileType==9)return 9;
-        if(mapData[top][right].tileType==10||mapData[top][left].tileType==10)return 10;
-
+        return max(max(mapData[top][right].tileType,mapData[bottom][right].tileType),max(mapData[top][left].tileType,mapData[bottom][left].tileType));
     }
     return 0;
     //2->3:7
@@ -333,20 +329,42 @@ vector<vector<Tile>> load_map_data(const json&map_data,int width,int height){
         for(int x=0;x<40;x++){
             
             mapData[y][x].tileType=data[index++];
-            mapData[y][x].isCollidable=(mapData[y][x].tileType==1||mapData[y][x].tileType==2||mapData[y][x].tileType==4||mapData[y][x].tileType==9);//124可碰撞
+            mapData[y][x].isCollidable=(mapData[y][x].tileType==1||mapData[y][x].tileType==2||mapData[y][x].tileType==4||mapData[y][x].tileType==5);//1245可碰撞
             mapData[y][x].isBrokenable=(mapData[y][x].tileType==4);//4是碎墙,是否能够站立由碰撞检测决定
             mapData[y][x].isIce=(mapData[y][x].tileType==2);//2是冰
             mapData[y][x].isWater=(mapData[y][x].tileType==3);//3是水
-            mapData[y][x].isMucous=(mapData[y][x].tileType==9);//9是粘液
-            mapData[y][x].isLadder=(mapData[y][x].tileType==21);//21是梯子
-            mapData[y][x].isWindLR=(mapData[y][x].tileType==22);//21是梯子
-            mapData[y][x].isWindUD=(mapData[y][x].tileType==23);//21是梯子
-            // mapData[y][x].from2intoMap3=(mapData[y][x].tileType==7);//map2->map3
-            // mapData[y][x].from3intoMap2=(mapData[y][x].tileType==8);//map3->map2
-            // mapData[y][x].from3intoMap4=(mapData[y][x].tileType==9);//map3->map4
-            // mapData[y][x].from4intoMap3=(mapData[y][x].tileType==10);//map4->map3
-            mapData[y][x].intoExit=(mapData[y][x].tileType==6);//map4->exit
-            //mapData[y][x].isChange=(mapData[y][x].tileType==7||mapData[y][x].tileType==8||mapData[y][x].tileType==9||mapData[y][x].tileType==10);//共性
+            mapData[y][x].isMucous=(mapData[y][x].tileType==5);//5是粘液
+            mapData[y][x].isLadder=(mapData[y][x].tileType==6);//6是梯子
+            mapData[y][x].isWindLR=(mapData[y][x].tileType==7);//7是上下风场
+            mapData[y][x].isWindUD=(mapData[y][x].tileType==8);//8是左右风场
+            mapData[y][x].intoExit=(mapData[y][x].tileType==71);//map9->exit
+            mapData[y][x].m1t2=(mapData[y][x].tileType==51);//1->2
+            mapData[y][x].m2t1=(mapData[y][x].tileType==52);//1->2
+            mapData[y][x].m2t3=(mapData[y][x].tileType==53);//1->2
+            mapData[y][x].m3t2=(mapData[y][x].tileType==54);//1->2
+            mapData[y][x].m3t4_1=(mapData[y][x].tileType==55);//1->2
+            mapData[y][x].m3t4_2=(mapData[y][x].tileType==56);//1->2
+            mapData[y][x].m4t3_1=(mapData[y][x].tileType==57);//1->2
+            mapData[y][x].m4t3_2=(mapData[y][x].tileType==58);//1->2
+            mapData[y][x].m3t5=(mapData[y][x].tileType==59);//1->2
+            mapData[y][x].m5t3=(mapData[y][x].tileType==60);//1->2
+            mapData[y][x].m5t6=(mapData[y][x].tileType==61);//1->2
+            mapData[y][x].m5t8=(mapData[y][x].tileType==62);//1->2
+            mapData[y][x].m6t5=(mapData[y][x].tileType==63);//1->2
+            mapData[y][x].m6t7=(mapData[y][x].tileType==64);//1->2
+            mapData[y][x].m7t6=(mapData[y][x].tileType==65);//1->2
+            mapData[y][x].m7t9=(mapData[y][x].tileType==66);//1->2
+            mapData[y][x].m7t8=(mapData[y][x].tileType==67);//1->2
+            mapData[y][x].m8t5=(mapData[y][x].tileType==68);//1->2
+            mapData[y][x].m8t7=(mapData[y][x].tileType==69);//1->2
+            mapData[y][x].m9t7=(mapData[y][x].tileType==70);//1->2
+
+
+            mapData[y][x].isChange=(mapData[y][x].tileType==51||mapData[y][x].tileType==52||mapData[y][x].tileType==53||mapData[y][x].tileType==54
+            ||mapData[y][x].tileType==55||mapData[y][x].tileType==56||mapData[y][x].tileType==57||mapData[y][x].tileType==58
+            ||mapData[y][x].tileType==59||mapData[y][x].tileType==60||mapData[y][x].tileType==61||mapData[y][x].tileType==62
+            ||mapData[y][x].tileType==63||mapData[y][x].tileType==64||mapData[y][x].tileType==65||mapData[y][x].tileType==66
+            ||mapData[y][x].tileType==67||mapData[y][x].tileType==68||mapData[y][x].tileType==69||mapData[y][x].tileType==70);//共性
             
         }
     }

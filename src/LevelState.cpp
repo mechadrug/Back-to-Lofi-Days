@@ -9,9 +9,11 @@ LevelState::LevelState(Game*game): game(game),manager(){
     if (game == nullptr) {
         throw std::runtime_error("Game pointer is null in LevelState constructor!");
     }
-    manager.loadBackgrounds({"../resources/images/map1.png", "../resources/images/MapThree.png", "../resources/images/MapFour.png"});
+    manager.loadBackgrounds({"../resources/images/finalMap1.png", "../resources/images/finalMap2.png", "../resources/images/finalMap3.png",
+    "../resources/images/finalMap4.png","../resources/images/finalMap5.png","../resources/images/finalMap6.png","../resources/images/finalMap7.png"
+    ,"../resources/images/finalMap8.png","../resources/images/finalMap9.png"});
     
-    manager.loadMapData("../configs/map0.json");
+    manager.loadMapData("../configs/finalMap1.json");
     Texture&texture= TexturePool::getTexture("../resources/images/movetest.png");
 
     float sx=manager.getCurrentBackground().returnScaleX();
@@ -57,30 +59,110 @@ void LevelState::handleInput(RenderWindow& window){
 }
 
 void LevelState::update(){
-
+    //bottomleft:(0,y0);bottomright:(x0,y0);topleft:(0,0);topright(x0,0)
     float deltaTime=clock.restart().asSeconds();//获取帧时间差
     girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes());
     manager.updateSlime(girl);
-    if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==7){
-        float gsx=32.f*manager.getCurrentBackground().returnScaleX();
+    if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==51){
+        float gsx=20.f*manager.getCurrentBackground().returnScaleX();
         float gsy=bottomLeft.y-32.f*manager.getCurrentBackground().returnScaleY();
-        manager.switchMap(1,girl,gsx,gsy);
-    }
-    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==8){
+        manager.switchMap(2,girl,gsx,gsy);
+    }//51 1t2
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==52){
         float gsx=bottomRight.x-48.f*manager.getCurrentBackground().returnScaleX();
-        float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
-        manager.switchMap(0,girl,gsx,gsy);
-    }
-    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==9){
+        float gsy=bottomRight.y-80.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(1,girl,gsx,gsy);
+    }//52 2t1
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==53){
         float gsx=topRight.x-32.f*manager.getCurrentBackground().returnScaleX();
         float gsy=16.f*manager.getCurrentBackground().returnScaleY();
-        manager.switchMap(2,girl,gsx,gsy);
-    }
-    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==10){
+        manager.switchMap(3,girl,gsx,gsy);
+    }//53 2t3
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==54){
         float gsx=bottomRight.x-64.f*manager.getCurrentBackground().returnScaleX();
         float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
-        manager.switchMap(1,girl,gsx,gsy);
-    }
+        manager.switchMap(2,girl,gsx,gsy);
+    }//54 3t2
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==55){
+        float gsx=bottomRight.x-45.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(4,girl,gsx,gsy);
+    }//55 3t4_1
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==56){
+        float gsx=topRight.x-48.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=topRight.y+32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(4,girl,gsx,gsy);
+    }//56 3t4_2
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==57){
+        float gsx=bottomLeft.x+32.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomLeft.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(3,girl,gsx,gsy);
+    }//57 4t3_1
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==58){
+        float gsx=topLeft.x+32.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=topLeft.y+32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(3,girl,gsx,gsy);
+    }//58 4t3_2
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==59){
+        float gsx=bottomLeft.x+32.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomLeft.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(5,girl,gsx,gsy);
+    }//59 3t5
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==60){
+        float gsx=bottomRight.x-48.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(3,girl,gsx,gsy);
+    }//60 5t3
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==61){
+        float gsx=bottomRight.x-64.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(6,girl,gsx,gsy);
+    }//61 5t6
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==62){
+        float gsx=bottomLeft.x+32.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomLeft.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(8,girl,gsx,gsy);
+    }//62 5t8
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==63){
+        float gsx=topRight.x-32.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=topRight.y+32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(5,girl,gsx,gsy);
+    }//63 6t5
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==64){
+        float gsx=topLeft.x+18.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=topLeft.y+32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(7,girl,gsx,gsy);
+    }//64 6t7
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==65){
+        float gsx=topRight.x-48.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=topRight.y+32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(6,girl,gsx,gsy);
+    }//65 7t6
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==66){
+        float gsx=bottomRight.x-64.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(9,girl,gsx,gsy);
+    }//66 7t9
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==67){
+        float gsx=topRight.x-32.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=topRight.y+32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(8,girl,gsx,gsy);
+    }//67 7t8
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==68){
+        float gsx=bottomRight.x-48.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(5,girl,gsx,gsy);
+    }//68 8t5
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==69){
+        float gsx=bottomRight.x-64.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(7,girl,gsx,gsy);
+    }//69 8t7
+    else if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==70){
+        float gsx=topRight.x-32.f*manager.getCurrentBackground().returnScaleX();
+        float gsy=topRight.y+32.f*manager.getCurrentBackground().returnScaleY();
+        manager.switchMap(7,girl,gsx,gsy);
+    }//70 9t7
     
 }
 

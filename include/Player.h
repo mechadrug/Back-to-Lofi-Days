@@ -14,20 +14,66 @@ using json=nlohmann::json;
 class Slime;
 
 struct Tile{
+    //瓷砖的编码
     int tileType;
+    //1 2 4 5
     bool isCollidable;
+    //2
     bool isIce;
+    //4
     bool isBrokenable;
+    //3
     bool isWater;
-    bool intoExit;
+    //5
     bool isMucous;
+    //8
     bool isWindUD;
+    //7
     bool isWindLR;
+    //6
     bool isLadder;
-    bool from3intoMap2;
-    bool from2intoMap3;
-    bool from3intoMap4;
-    bool from4intoMap3;
+    //51
+    bool m1t2;
+    //52
+    bool m2t1;
+    //53
+    bool m2t3;
+    //54
+    bool m3t2;
+    //55
+    bool m3t4_1;
+    //56
+    bool m3t4_2;
+    //57
+    bool m4t3_1;
+    //58
+    bool m4t3_2;
+    //59
+    bool m3t5;
+    //60
+    bool m5t3;
+    //61
+    bool m5t6;
+    //62
+    bool m5t8;
+    //63
+    bool m6t5;
+    //64
+    bool m6t7;
+    //65
+    bool m7t6;
+    //66
+    bool m7t9;
+    //67
+    bool m7t8;
+    //68
+    bool m8t5;
+    //69
+    bool m8t7;
+    //70
+    bool m9t7;
+    //71
+    bool intoExit;
     bool isChange;
     chrono::duration<float> standingTime; //累计站立时间
 
