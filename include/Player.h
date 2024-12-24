@@ -7,6 +7,7 @@
 //#include <vector>
 #include <chrono>
 #include <SFML/Graphics.hpp>
+#include "GlobalVar.h"
 using namespace std;
 using namespace sf;
 using json=nlohmann::json;

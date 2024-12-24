@@ -9,6 +9,8 @@
 #include"TexturePool.h"
 #include"MapManager.h"
 #include"Slime.h"
+#include"Shop.h"
+#include"GlobalVar.h"
 class LevelState: public GameState{
     private:
     Game*game;
@@ -21,7 +23,8 @@ class LevelState: public GameState{
     Vector2f topRight;
     Vector2f bottomLeft;
     Vector2f bottomRight;
-
+    //bool gamePaused;//true->暂停;false->开始
+    Shop shop;
     public:
     LevelState(Game* game);
     void handleInput(RenderWindow& window) override;

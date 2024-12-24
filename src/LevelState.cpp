@@ -5,7 +5,7 @@
 
 
 
-LevelState::LevelState(Game*game): game(game),manager(){
+LevelState::LevelState(Game*game): game(game),manager(),shop(){
     if (game == nullptr) {
         throw std::runtime_error("Game pointer is null in LevelState constructor!");
     }
@@ -27,7 +27,7 @@ LevelState::LevelState(Game*game): game(game),manager(){
     topRight=Vector2f(static_cast<float>(windowSize.x), 0.f);  // 右上角
     bottomLeft=Vector2f(0.f, static_cast<float>(windowSize.y));  // 左下角
     bottomRight=Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));  // 右下角
-
+    //gamePaused=false;
 }
 void LevelState::handleInput(RenderWindow& window){
     Event event;
@@ -170,5 +170,7 @@ void LevelState::render(RenderWindow& window){
     window.clear();
     manager.renderMap(window,manager.getCurrentMapData());
     girl.render(window);
+    shop.update(window);
+    shop.render(window);
     window.display();
 }

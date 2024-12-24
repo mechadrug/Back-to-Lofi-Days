@@ -101,6 +101,9 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
         //2:向左检测,应该检测左上和左下
         //3:向上检测,应该检测左上和右上
         //4;向下检测,应该检测左下和右下
+        if(gamePaused){
+            return;
+        }
         bool isOnIce = false;
         bool isOnMucous = false;
         bool isOnLadder = false;

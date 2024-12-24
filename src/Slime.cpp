@@ -6,6 +6,9 @@ Slime::Slime(float x, float y, const sf::Texture& texture, int health,
       attackCooldown(attackCooldown), detectionRange(detectionRange), isDead(false) {}
 //注意这里的1.8f是暂时值之后再改动
 void Slime::update(MovableObject& target) {
+    if(gamePaused){
+        return;
+    }
     // 检测是否有目标角色在附近
     float slimeX = movable.getPosition().x;
     float slimeY = movable.getPosition().y;
