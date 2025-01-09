@@ -11,9 +11,19 @@ void MapManager::loadMapData(const std::string& mapConfigFile) {
     jsonArrayWidth = loadingData["layers"][0]["width"];
     jsonArrayHeight = loadingData["layers"][0]["height"];
     mapData = load_map_data(loadingData, jsonArrayWidth, jsonArrayHeight);
+    float sx=backgrounds[0].returnScaleX();
+    float sy=backgrounds[0].returnScaleY();
+    // 加载金币位置
+        coins.clear();  // 清空之前的金币
+        for (int y = 0; y < 30; ++y) {
+            for (int x = 0; x < 40; ++x) {
+                if (mapData[y][x].tileType == 20) {  // 假设 20 是金币
+                    coins.emplace_back(x * 16.f*sx, y * 16.f*sy, coin);  // 创建金币并加入列表
+                }
+            }
+        }
+
     if(!firstLoadSlime){
-        float sx=backgrounds[0].returnScaleX();
-        float sy=backgrounds[0].returnScaleY();
         for(int y1=0;y1<30;y1++){
             for(int x1=0;x1<40;x1++){
                 if(mapData[y1][x1].tileType==91){
@@ -59,6 +69,10 @@ void MapManager::renderMap(RenderWindow& window, const std::vector<std::vector<T
     // 渲染当前地图背景
     backgrounds[currentMapIndex].draw(window);
 
+    // 渲染金币
+        for (auto& coin : coins) {
+            coin.render(window);
+        }
     // 渲染碎墙等元素
     for (int y = 0; y < 30; y++) {
         for (int x = 0; x < 40; x++) {
@@ -92,4 +106,9 @@ void MapManager::updateSlime(MovableObject&girl){
 
 vector<Slime>& MapManager::getSlimes(){
     return slimes;
+}
+void MapManager::updateCoin(MovableObject&girl){
+    for(auto&coin:coins){
+        coin.checkCollision(girl);
+    }
 }

@@ -8,6 +8,12 @@
 #include <chrono>
 #include <SFML/Graphics.hpp>
 #include "GlobalVar.h"
+#include<unordered_map>
+#include<cstdlib>
+#include<ctime>
+// #include "Backpack.h"
+// #include "Shop.h"
+//#include "Item.h"
 using namespace std;
 using namespace sf;
 using json=nlohmann::json;
@@ -83,15 +89,25 @@ class MovableObject{
     private:
     Sprite sprite;
     Vector2f position;
-    float speed;//横移速度
+    // 6
+    float speed;//横移速度6
     float verticalSpeed;//垂直速度
     float gravity;//重力加速度
-    float jumpHeight;//跳跃高度
+    // 5
+    float jumpHeight;//跳跃高度5
     bool isJumping;//是否在跳跃当中
     float inertiaSpeed;//在冰面上的惯性速度
-    int Health;//:血量
-    int Attack;//:攻击力
+    // 4
+    int Health;//:血量4
+    // 2
+    int Attack;//:攻击力2
     bool intoWind;//进入风场
+    // 9
+    int HealthCap;// 血量上限9
+    // 8
+    int atkRange;// 攻击范围8
+    // 7
+    float probWithoutBeingAttacked; // 可能的不被攻击的概率7
     //等待实现的功能:近距离攻击;隐身;躲避
     //键位安排:
     //A: LEFT (已经实现了)
@@ -101,13 +117,45 @@ class MovableObject{
     //H: HIDE 隐身 (未实现,每十秒钟可以使用一次,按下之后敌人无法攻击,持续两秒(看不到玩家))
     //P: DODGING 躲避 (往前瞬移两格,有适当的无敌帧时间)
     bool isInvisible; //是否可视
-    float invisibilityDuration; //隐身的持续时间
+    // 1
+    float invisibilityDuration; //隐身的持续时间1
+    float invisiTime;// 用来动态计算隐身的持续时间
     chrono::steady_clock::time_point lastInvisibilityTime;  //上次隐身使用时间
     float invisibilityCooldown;  //隐身的冷却时间
     bool isDodging;
     bool isDead;
-    float attackCooldown;
+    // 3
+    float attackCooldown; // 3
     chrono::steady_clock::time_point lastAttackTime;
+    std::chrono::steady_clock::time_point lastUseTime;
+    // money :角色持有货币;初始值为0;
+    int money;
+    // 背包
+    unordered_map<string,int> bag;
+
+    // 原始值存储->对应于装备管理
+    struct OriginalValues { 
+        // 原始的隐身时间 1
+        float invisiTime;
+        // init attack 2
+        int attack;
+        // 原始的冷却时间 3
+        float attackCooldown;
+        // init health 4
+        int health;
+        // 原始起跳速度 5
+        float jumpHeight;
+        // 原始速度 6
+        float speed;
+        // 原始的被攻击不掉血概率 7
+        float initprob;
+        // 原始的攻击范围 8
+        int atkRange;
+        // 原始的血量上限 9
+        int healthCap;
+    };
+
+    OriginalValues originalValues;
 
     public:
     //等待实现方法:检测冰墙(增加滑动);检测碎墙(站上去之后过一秒这个墙就不能站人了);检测水域(主角掉进水里,直接死亡,跳到结算界面)
@@ -129,8 +177,14 @@ class MovableObject{
     Vector2f getPosition() const {
         return position; // 返回存储的实际位置
     }
+    sf::FloatRect getBounds() const {
+        return sprite.getGlobalBounds();  // 获取 sprite 的边界框
+    }
     void takeDamage(int slimeDamage){
-        Health-=slimeDamage;
+        float randProb=static_cast<float>(rand())/RAND_MAX;
+        if(randProb>probWithoutBeingAttacked){
+            Health-=slimeDamage;
+        }
         if(Health<=0)isDead=true;
     }
     bool isAlive(){
@@ -144,6 +198,160 @@ class MovableObject{
     bool InvisibleForSlime(){
         return isInvisible;
     }
+        // 修改数值
+    void modifyValue(float& member, float valueChange) {
+        member += valueChange;
+    }
+
+    void modifyValue(int& member, int valueChange) {
+        member += valueChange;
+    }
+
+    // 恢复数值到初始值
+    void restoreValue(float& member, float originalValue) {
+        member = originalValue;
+    }
+
+    void restoreValue(int& member, int originalValue) {
+        member = originalValue;
+    }
+
+    // 改变隐身时间并恢复 (1)
+    void changeInvisiTime(float valueChange) {
+        modifyValue(invisibilityDuration, valueChange);
+    }
+
+    void restoreInvisiTime() {
+        restoreValue(invisibilityDuration, originalValues.invisiTime);
+    }
+
+    // 改变攻击力并恢复 (2)
+    void changeAttack(int valueChange) {
+        modifyValue(Attack, valueChange);
+    }
+
+    void restoreAttack() {
+        restoreValue(Attack, originalValues.attack);
+    }
+
+    // 改变冷却时间并恢复 (3)
+    void changeAttackCooldown(float valueChange) {
+        modifyValue(attackCooldown, valueChange);
+    }
+
+    void restoreAttackCooldown() {
+        restoreValue(attackCooldown, originalValues.attackCooldown);
+    }
+
+    // 使用泡芙回复血量 (4)
+    void changeHealth(int valueChange) {
+        modifyValue(Health, valueChange);
+    }
+
+    // void restoreHealth() {
+    //     restoreValue(Health, originalValues.health);
+    // }
+
+    // 改变起跳速度并恢复 (5)
+    void changeJumpHeight(float valueChange) {
+        modifyValue(jumpHeight, valueChange);
+    }
+
+    void restoreJumpHeight() {
+        restoreValue(jumpHeight, originalValues.jumpHeight);
+    }
+
+    // 改变速度并恢复 (6)
+    void changeSpeed(float valueChange) {
+        modifyValue(speed, valueChange);
+    }
+
+    void restoreSpeed() {
+        restoreValue(speed, originalValues.speed);
+    }
+
+    // 改变被攻击不掉血概率并恢复 (7)
+    void changeInviProb(float valueChange) {
+        modifyValue(probWithoutBeingAttacked, valueChange);
+    }
+
+    void restoreInviProb() {
+        restoreValue(probWithoutBeingAttacked, originalValues.initprob);
+    }
+
+    // 改变攻击范围并恢复 (8)
+    void changeAtkRange(int valueChange) {
+        modifyValue(atkRange, valueChange);
+    }
+
+    void restoreAtkRange() {
+        restoreValue(atkRange, originalValues.atkRange);
+    }
+
+    // 改变血量上限并恢复 (9)
+    void changeHealthCap(int valueChange) {
+        modifyValue(HealthCap, valueChange);
+    }
+
+    void restoreHealthCap() {
+        restoreValue(HealthCap, originalValues.healthCap);
+        if(Health>=originalValues.healthCap){
+            restoreValue(Health, originalValues.health);
+        }
+    }
+
+    unordered_map<char,int> equippedItems; //存储每种类型的已装备物品 (根据首个字符区分)
+    unordered_map<string,int> reusableItems;  // 存储可重复使用的物品
+    
+    // 获取money
+    int getMoney() const{
+        return money;
+    }
+    // 扣除money
+    void decreaseMoney(int amount) {
+        if (money >= amount) {
+            money -= amount;
+        }
+    }
+    void earnMoney(){
+        money++;
+    }
+    bool canPurchaseMultiple(const string& itemId) {
+    return itemId == "31" || itemId == "41" || itemId == "42";  // 根据物品ID判断是否可以多次购买
+    }
+
+    // 添加物品到bag里面
+    void addItemToBag( int ID) {
+    if (canPurchaseMultiple(items[ID].id)) {
+        // 对于可以多次购买的物品，增加数量
+        if (bag.find(items[ID].id) != bag.end()) {
+            // 物品已存在，增加数量
+            items[ID].quantity += 1;
+            std::cout << "Item " << items[ID].id << " quantity increased. New quantity: " << items[ID].quantity << std::endl;
+        } else {
+            // 物品不存在，直接添加
+            bag[items[ID].id] = ID;
+            items[ID].quantity = 1;
+            std::cout << "Item " << items[ID].id << " added to bag." << std::endl;
+        }
+    } else {
+        // 对于不能多次购买的物品，只能购买一个副本
+        if (bag.find(items[ID].id) == bag.end()) {
+            // 物品不存在，添加到背包
+            bag[items[ID].id] = ID;
+            std::cout << "Item " << items[ID].id << " added to bag." << std::endl;
+        } else {
+            // 物品已经存在，不能重复添加
+            std::cout << "Item " << items[ID].id << " is already in the bag!" << std::endl;
+        }
+    }
+}
+    unordered_map<string,int>& getBag(){
+        return bag;
+    }
+    void triggerReusableItems();
+    void applyItemEffect(int ID);
+    // 检测装备函数
 };
 //void attack();
     //void useInvisibility();

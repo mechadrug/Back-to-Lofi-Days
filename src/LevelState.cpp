@@ -28,6 +28,14 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
     bottomLeft=Vector2f(0.f, static_cast<float>(windowSize.y));  // 左下角
     bottomRight=Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));  // 右下角
     //gamePaused=false;
+
+    panelWidth = 50.f; // 横拉条宽度
+    panelHeight = 0.5*windowSize.y; // 高度等于窗口高度
+    panel.setSize(sf::Vector2f(panelWidth, panelHeight));
+    panel.setFillColor(sf::Color(0, 0, 0, 200)); // 半透明黑色背景
+    panel.setPosition(-panelWidth, 200.f); // 初始位置在屏幕外
+
+    isPanelVisible = false; // 初始时不显示
 }
 void LevelState::handleInput(RenderWindow& window){
     Event event;
@@ -55,6 +63,15 @@ void LevelState::handleInput(RenderWindow& window){
             return;
         }
 
+        sidebar.isClickOpener(window);
+        if(sidebar.isSidebarVisible()){
+            isPanelVisible = true;
+        }
+        else{
+            isPanelVisible = false;
+        }
+        //
+
     }
 }
 
@@ -63,6 +80,7 @@ void LevelState::update(){
     float deltaTime=clock.restart().asSeconds();//获取帧时间差
     girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes());
     manager.updateSlime(girl);
+    manager.updateCoin(girl);
     if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==51){
         float gsx=20.f*manager.getCurrentBackground().returnScaleX();
         float gsy=bottomLeft.y-32.f*manager.getCurrentBackground().returnScaleY();
@@ -163,14 +181,22 @@ void LevelState::update(){
         float gsy=topRight.y+32.f*manager.getCurrentBackground().returnScaleY();
         manager.switchMap(7,girl,gsx,gsy);
     }//70 9t7
-    
+
+    sidebar.displayBar(isPanelVisible,deltaTime);
 }
 
 void LevelState::render(RenderWindow& window){
     window.clear();
+    // sf::RectangleShape border(sf::Vector2f(window.getSize().x, window.getSize().y));
+    // border.setFillColor(sf::Color::Transparent);  // 设置为透明填充
+    // border.setOutlineThickness(100);  // 设置边框厚度
+    // border.setOutlineColor(sf::Color(255, 255, 255));  // 设置边框颜色
+    // window.draw(border);
     manager.renderMap(window,manager.getCurrentMapData());
     girl.render(window);
-    shop.update(window);
-    shop.render(window);
+    //shop.update(window);
+    //shop.render(window);
+    //window.draw(panel);
+    sidebar.render(window,girl);
     window.display();
 }

@@ -11,6 +11,7 @@
 #include"Slime.h"
 #include"Shop.h"
 #include"GlobalVar.h"
+#include"SidebarManager.h"
 class LevelState: public GameState{
     private:
     Game*game;
@@ -25,6 +26,12 @@ class LevelState: public GameState{
     Vector2f bottomRight;
     //bool gamePaused;//true->暂停;false->开始
     Shop shop;
+
+    sf::RectangleShape panel; // 横拉条
+    float panelWidth;         // 横拉条的宽度
+    float panelHeight;        // 横拉条的高度
+    bool isPanelVisible;      // 横拉条是否可见
+    SidebarManager sidebar;
     public:
     LevelState(Game* game);
     void handleInput(RenderWindow& window) override;

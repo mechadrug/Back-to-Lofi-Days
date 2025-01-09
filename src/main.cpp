@@ -3,8 +3,10 @@
 #include "../include/Game.h"
 #include<iostream>
 #include "../include/TexturePool.h"
+// #include <windows.h>
 using namespace std; 
 int main(){
+  //SetConsoleOutputCP(CP_UTF8);
   try{
     Game game;
     game.run();

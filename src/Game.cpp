@@ -12,7 +12,7 @@ Game::Game(){
     
     //根据4:3比例计算窗口宽度
     unsigned int windowWidth = windowHeight * 4 / 3;
-    window.create(sf::VideoMode(windowWidth, windowHeight), "Lofi Days");
+    window.create(sf::VideoMode(windowWidth, windowHeight), L"你好");
      window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
     //默认进入菜单状态:
     changeState(make_unique<MenuState>(this));

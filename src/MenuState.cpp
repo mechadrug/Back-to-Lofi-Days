@@ -8,7 +8,7 @@ using namespace std;
 
     //获取窗口的大小
     sf::Vector2u windowSize = game->getWindow().getSize();
-
+    window_sz=windowSize;
     //开始按钮的宽度和高度:
      unsigned int buttonWidth = 240;
      unsigned int buttonHeight = 80;

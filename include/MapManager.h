@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "TexturePool.h"
 #include "Slime.h"
+#include "Coin.h"
 class MapManager {
 private:
     vector<Map> backgrounds;  // 存储所有背景地图
@@ -22,7 +23,8 @@ private:
 
     vector<Slime> slimes;
     Texture&slime=TexturePool::getTexture("../resources/images/Bob/slimeBob.png");
-
+    vector<Coin> coins;
+    Texture&coin=TexturePool::getTexture("../resources/images/coin.png");
 public:
     MapManager();
     void loadMapData(const string& mapConfigFile);
@@ -33,6 +35,7 @@ public:
     vector<vector<Tile>>& getCurrentMapData();
     void updateSlime(MovableObject&girl);
     vector<Slime>& getSlimes();
+    void updateCoin(MovableObject&girl);
 };
 
 #endif

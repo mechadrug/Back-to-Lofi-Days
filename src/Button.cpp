@@ -29,3 +29,7 @@ sf::FloatRect Button::getBounds() const {
     return sprite.getGlobalBounds();
 }
 
+void Button::setPos(float x, float y){
+    sprite.setPosition(x,y);
+}
+

@@ -1,10 +1,28 @@
 #include "../include/Player.h"
 #include "../include/Slime.h"
 MovableObject::MovableObject(float x, float y, const sf::Texture& texture,float sx,float sy)
-        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),inertiaSpeed(0.f),Health(10),Attack(2), isDead(false),attackCooldown(1.f),lastAttackTime(chrono::steady_clock::now()),intoWind(false){
+        : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),
+        inertiaSpeed(0.f),Health(10),Attack(2), isDead(false),attackCooldown(1.f),
+        lastAttackTime(chrono::steady_clock::now()),intoWind(false),invisibilityDuration(2.0f),
+        probWithoutBeingAttacked(0.f),atkRange(2),HealthCap(10){
         sprite.setPosition(position);
         sprite.setTexture(texture);
         sprite.setScale(sx,sy);
+        money=1000;
+        invisiTime=0.f;
+        lastUseTime = std::chrono::steady_clock::now();
+        //123456
+        //789
+        // 初始化原始值        
+        originalValues.invisiTime=2.0f;// 1
+        originalValues.attack = 2;// 2
+        originalValues.attackCooldown=1.0f;// 3
+        originalValues.health = 10;// 4
+        originalValues.jumpHeight = 533.0f;// 5
+        originalValues.speed = 350.0f;// 6
+        originalValues.initprob=0.f;// 7
+        originalValues.atkRange=2;// 8
+        originalValues.healthCap=10;// 9
     }
 bool MovableObject::checkCollision(float newX,float newY, vector<vector<Tile>>&mapData, float tileWidth, float tileHeight,int select){
         int left=newX/tileWidth;//角色左边所在瓦片的索引
@@ -101,9 +119,11 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
         //2:向左检测,应该检测左上和左下
         //3:向上检测,应该检测左上和右上
         //4;向下检测,应该检测左下和右下
+        triggerReusableItems();
         if(gamePaused){
             return;
         }
+
         bool isOnIce = false;
         bool isOnMucous = false;
         bool isOnLadder = false;
@@ -282,7 +302,8 @@ void MovableObject::attack(vector<Slime>& slimes){
             float distanceY = abs(position.y - slime.getPosition().y);
 
             // 假设攻击范围是两格（每格16像素）
-            if (distanceX <= 32.0f*1.8f && distanceY <= 32.0f*1.8f && slime.isAlive()) {
+            // 这里后期的代码修复需要把scaleXY改成全局的
+            if (distanceX <= atkRange*16.0f*1.8f && distanceY <= atkRange*16.0f*1.8f && slime.isAlive()) {
                 slime.takeDamage(Attack);  // 对史莱姆造成伤害
                 cout << "Player attacks slime!" << endl;
             }
@@ -297,7 +318,7 @@ void MovableObject::startInvisibility(){
     if(canUseInvisibility()){
         cout<<"girl use invisibility"<<endl;
         isInvisible=true;
-        invisibilityDuration=2.0f;
+        invisiTime=invisibilityDuration;
         lastInvisibilityTime=chrono::steady_clock::now();
     }
 }
@@ -307,11 +328,58 @@ bool MovableObject::canUseInvisibility(){
 
 void MovableObject::checkInvisibilityCooldowm(float deltaTime){
     if(isInvisible){
-        invisibilityDuration -=deltaTime;
-        if(invisibilityDuration<=0){
+        invisiTime -=deltaTime;
+        if(invisiTime<=0){
             cout<<"invisibility goes away"<<endl;
             isInvisible=false;
         }
+    }
+}
+void MovableObject::triggerReusableItems() {
+    auto currentTime = std::chrono::steady_clock::now();
+    // 计算上次触发物品效果和当前时间的时间差
+    std::chrono::duration<float> timeElapsed = currentTime - lastUseTime;
+    // 检查时间是否已经超过 1 秒
+    if (timeElapsed.count() >= 1.0f) {  // 如果时间差大于等于1秒
+        // 检查是否按下 R 键
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+            // 遍历所有可重复使用的物品，并触发它们的效果
+            for (auto& reusableItem : reusableItems) {
+                 // 检查泡芙是否存在并且数量大于零
+                if (items[reusableItem.second].id == "31" && items[reusableItem.second].quantity == 0) {
+                    std::cout << "No more " << items[reusableItem.second].id << " to use." << std::endl;
+                    continue;  // 如果泡芙数量为零，不再触发效果
+                }
+                if (items[reusableItem.second].id == "41" && items[reusableItem.second].quantity == 0) {
+                    std::cout << "No more " << items[reusableItem.second].id << " to use." << std::endl;
+                    continue;  // 如果小号果数量为零，不再触发效果
+                }
+                if (items[reusableItem.second].id == "42" && items[reusableItem.second].quantity == 0) {
+                    std::cout << "No more " << items[reusableItem.second].id << " to use." << std::endl;
+                    continue;  // 如果竖琴数量为零，不再触发效果
+                }
+                applyItemEffect(reusableItem.second);  // 应用物品效果
+                items[reusableItem.second].use();  // 使用物品（减少数量）
+               // reusableItem.second.quantity-=1;
+            }
+            cout << "Used something, current health: " << Health << endl;
+
+            // 更新上次使用时间为当前时间
+            lastUseTime = currentTime;
+        }
+    }
+}
+void MovableObject::applyItemEffect(int ID){
+    if(items[ID].id=="31"){
+        if(Health<HealthCap){
+            this->changeHealth(items[ID].extraBlood);
+        }else{
+            cout<<"FULL!"<<endl;
+        }
+    }else if(items[ID].id=="41"){
+        // 暂时不处理
+    }else if(items[ID].id=="42"){
+        // 暂时不处理
     }
 }
 json load_map(const string& filename){
