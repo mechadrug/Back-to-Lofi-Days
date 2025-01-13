@@ -7,6 +7,7 @@
 #include "Backpack.h"  // 假设你有背包系统
 #include "Player.h"
 #include "GlobalVar.h"
+#include "Rule.h"
 class SidebarManager {
 private:
     RectangleShape sidebar;  // 侧边栏的背景
@@ -14,6 +15,7 @@ private:
     Shop* shopSystem;            // 商店系统
     Achievements* achievementsSystem;  // 成就系统
     Bag* backpackSystem;          // 背包系统
+    Rule* rulesSystem;
     void* activeSystem;          // 当前激活的子系统
     Button button; // 半透明按钮;当点击这个按钮之后,会呼出sidebar
     RectangleShape buttonMask; //蒙一层磨砂效果
@@ -58,6 +60,7 @@ public:
                 shopSystem->setPos(newPosX,400.f);
                 achievementsSystem->setPos(newPosX,450.f);
                 backpackSystem->setPos(newPosX,500.f);
+                rulesSystem->setPos(newPosX,550.f);
             }
         }else{
             if (sidebar.getPosition().x > -50.f) {
@@ -67,6 +70,7 @@ public:
             shopSystem->setPos(newPosX,400.f);
             achievementsSystem->setPos(newPosX,450.f);
             backpackSystem->setPos(newPosX,500.f);
+            rulesSystem->setPos(newPosX,550.f);
         }
         }
     }  

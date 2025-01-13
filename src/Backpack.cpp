@@ -17,12 +17,12 @@ Bag::Bag() : isBagOpen(false), bagButton(-50, 500, 50, 50, "../resources/images/
 // 一开始应该是没有loadItems的,应该需要girls去处理这个事件
 void Bag::loadItems(MovableObject&girl){
     // 测试编号从0~5
-    Texture&texture0=TexturePool::getTexture("../resources/images/bag.png");
-    Texture&texture1=TexturePool::getTexture("../resources/images/bag.png");
-    Texture&texture2=TexturePool::getTexture("../resources/images/bag.png");
-    Texture&texture3=TexturePool::getTexture("../resources/images/bag.png");
-    Texture&texture4=TexturePool::getTexture("../resources/images/bag.png");
-    Texture&texture5=TexturePool::getTexture("../resources/images/bag.png");
+    // Texture&texture0=TexturePool::getTexture("../resources/images/bag.png");
+    // Texture&texture1=TexturePool::getTexture("../resources/images/bag.png");
+    // Texture&texture2=TexturePool::getTexture("../resources/images/bag.png");
+    // Texture&texture3=TexturePool::getTexture("../resources/images/bag.png");
+    // Texture&texture4=TexturePool::getTexture("../resources/images/bag.png");
+    // Texture&texture5=TexturePool::getTexture("../resources/images/bag.png");
     vector<BagItemButton>temp;
     int row=0,col=0;
     for (auto& item : girl.getBag()) {
@@ -39,7 +39,7 @@ void Bag::loadItems(MovableObject&girl){
             // cout<<"te"<<endl;
             continue;
         }
-        temp.push_back(BagItemButton(xPos, yPos, 50, 50, "../resources/images/bag.png", attribute[row], row,items[item.second].name, items[item.second].description,id));
+        temp.push_back(BagItemButton(xPos, yPos, 50, 50, filename[id], attribute[row], row,items[item.second].name, items[item.second].description,id));
     }
     itemButtons.clear();
     itemButtons=move(temp);

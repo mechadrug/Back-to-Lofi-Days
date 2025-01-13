@@ -15,6 +15,12 @@ extern wstring stringToWStringhh(const std::string& str);
 
 extern unordered_map<int,wstring> attribute;
 
+extern unordered_map<string,string> filename;
+
+extern unordered_map<int,string>acname;
+
+extern unordered_map<int,wstring>acdetails;
+
 extern Vector2u window_sz;
 
 extern float fx;
@@ -28,7 +34,13 @@ extern float fy;
 //extern Item items[];
 extern vector<Item> items;
 
-/*当前正在使用的系统:系统1:Shop 系统2:Backpack 系统3:Achievements*/
+/*当前正在使用的系统:系统1:Shop 系统2:Backpack 系统3:Achievements 系统4:规则*/
 extern int usingSystem;
 
+extern float globalScaleX;
+extern float globalScaleY;
+
+extern unordered_map<int,bool>acCheck;
+
+extern unordered_map<int,wstring>gameRules;
 #endif

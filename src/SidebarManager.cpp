@@ -15,12 +15,14 @@ SidebarManager::SidebarManager()
     shopSystem = new Shop();
     achievementsSystem = new Achievements();
     backpackSystem = new Bag();
+    rulesSystem = new Rule();
 }
 
 SidebarManager::~SidebarManager() {
     delete shopSystem;
     delete achievementsSystem;
     delete backpackSystem;
+    delete rulesSystem;
 }
 
 void SidebarManager::render(sf::RenderWindow& window,MovableObject &girl) {
@@ -34,6 +36,8 @@ void SidebarManager::render(sf::RenderWindow& window,MovableObject &girl) {
         achievementsSystem->render(window);
         backpackSystem->update(window,girl);
         backpackSystem->render(window,girl);
+        rulesSystem->update(window,girl);
+        rulesSystem->render(window);
     }
     else if(usingSystem==1){
         shopSystem->update(window,girl);
@@ -46,6 +50,10 @@ void SidebarManager::render(sf::RenderWindow& window,MovableObject &girl) {
     else if(usingSystem==3){
         backpackSystem->update(window,girl);
         backpackSystem->render(window,girl);
+    }
+    else if(usingSystem==4){
+        rulesSystem->update(window,girl);
+        rulesSystem->render(window);
     }
     
     

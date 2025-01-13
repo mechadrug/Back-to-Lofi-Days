@@ -119,6 +119,32 @@ class BagItemButton:public Button{
 
 };
 
-
+class ACButton:public Button{
+    private:
+    wstring details;
+    bool showdt;
+    int id;
+    public:
+    ACButton(float x,float y,float width,float height, const string&textureFile,wstring dt,int i):
+    Button(x,y,width,height,textureFile),details(dt),id(i){
+        showdt=false;
+    }
+    wstring getDetails()const{
+        wstring s=details;
+        return s;
+    }
+    bool getIfShowdt()const{
+        return showdt;
+    }
+    void changeShowdt(){
+        if(showdt){
+            showdt=false;
+        }else{
+            showdt=true;
+        }
+    }
+    int getId()const{
+        return id;
+    }
+};
 #endif
-

@@ -1,5 +1,6 @@
 #include "../include/Map.h"
 #include "../include/TexturePool.h"
+#include "../include/GlobalVar.h"
 Map::Map(const string &bgFile){
     Texture&texture = TexturePool::getTexture(bgFile);
     bgSprite.setTexture(texture);
@@ -11,6 +12,8 @@ Map::Map(const string &bgFile){
     scaleX = static_cast<float>(windowWidth) / static_cast<float>(texture.getSize().x);
     scaleY = static_cast<float>(windowHeight) / static_cast<float>(texture.getSize().y);
     bgSprite.setScale(scaleX, scaleY);
+    globalScaleX=scaleX;
+    globalScaleY=scaleY;
 }
 void Map::draw(RenderWindow& window){
     window.draw(bgSprite);
