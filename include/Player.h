@@ -156,7 +156,38 @@ class MovableObject{
     };
 
     OriginalValues originalValues;
+    /*以下是动画参数列表*/
+    // 动画相关字段
+    Texture currentTexture;                   // 当前使用的纹理
+    vector<IntRect> idleFrames;         // 待机动画帧序列
+    vector<IntRect> moveRightFrames;         // 向右移动动画帧序列
+    vector<IntRect> moveLeftFrames;         // 向左移动动画帧序列
+    vector<IntRect> ladderFrames;         // 爬梯子动画帧序列
+    vector<IntRect> jumpFrames;         // 跳跃动画帧序列
+    vector<IntRect> invisiFrames;       //隐身动画帧序列
+    vector<IntRect> dodgeFrames;        // 躲避动画帧序列
+    vector<IntRect> attackFrames;       // 攻击动画帧序列
+    vector<IntRect> dieFrames;          //死亡动画帧序列
+    int currentFrame;                            // 当前动画帧索引
+    float animationTimer;                        // 动画计时器
+    float animationSpeed;                        // 动画播放速度:参考值
+    float idleTimer;
+    float idleSpeed;//待机动作播放速度
+    float moveTimer;
+    float moveSpeed;//向左向右移动播放速度
+    float ladderTimer;
+    float ladderSpeed;//爬梯子动作播放速度
+    float invisiTimer;
+    float invisiTimer2;
+    float invisiSpeed;//隐身动作播放速度
+    float atkTimer;
+    float atkSpeed;//攻击播放速度
+    Clock frameClock;                        // 用于帧计时
+    bool isAnimating;                            // 是否正在播放动画
+    string currentAction;                   // 当前动画状态 (idle, move, attack等)
 
+
+    /*动画参数结束*/
     public:
     //等待实现方法:检测冰墙(增加滑动);检测碎墙(站上去之后过一秒这个墙就不能站人了);检测水域(主角掉进水里,直接死亡,跳到结算界面)
     MovableObject()=default;
@@ -190,7 +221,7 @@ class MovableObject{
     bool isAlive(){
         return !isDead;
     }
-    void attack(vector<Slime>&slimes);
+    bool attack(vector<Slime>&slimes);
 
     void startInvisibility();
     void checkInvisibilityCooldowm(float deltaTime);
@@ -351,7 +382,12 @@ class MovableObject{
     }
     void triggerReusableItems();
     void applyItemEffect(int ID);
+
+    
     // 检测装备函数
+
+    // 动画函数
+    void updateAnimation(float deltaTime);
 };
 //void attack();
     //void useInvisibility();

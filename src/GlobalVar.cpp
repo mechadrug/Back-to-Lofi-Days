@@ -134,6 +134,8 @@ unordered_map<int, wstring> gameRules = {
     {12,L"当前角色的血量和装备状态也可以通过点击 '呼出侧边栏' 按钮来显示哦!"},
     {13, L"其他细节在游戏中再慢慢探索吧!"}
 };
+
+bool checkJumpAndMove=false;
 // wstring rule=L"规则:\n
 // 1.游戏目标:扮演lofi girl离开虫洞\n
 // 2.操作:A--向左移动   D--向右移动   Space--跳跃 W--上梯子 S--下梯子 R--使用道具 J--攻击(近距离&&远距离取决于装备的效果)

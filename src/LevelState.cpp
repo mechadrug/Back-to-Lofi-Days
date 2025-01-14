@@ -14,7 +14,7 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
     ,"../resources/images/finalMap8.png","../resources/images/finalMap9.png"});
     
     manager.loadMapData("../configs/finalMap1.json");
-    Texture&texture= TexturePool::getTexture("../resources/images/movetest.png");
+    Texture&texture= TexturePool::getTexture("../resources/images/girlmove.png");
 
     float sx=manager.getCurrentBackground().returnScaleX();
     float sy=manager.getCurrentBackground().returnScaleY();

@@ -4,10 +4,35 @@ MovableObject::MovableObject(float x, float y, const sf::Texture& texture,float 
         : position(x, y), speed(350.f),verticalSpeed(0.f),gravity(580.f),jumpHeight(533.f),isJumping(false),
         inertiaSpeed(0.f),Health(10),Attack(2), isDead(false),attackCooldown(1.f),
         lastAttackTime(chrono::steady_clock::now()),intoWind(false),invisibilityDuration(2.0f),
-        probWithoutBeingAttacked(0.f),atkRange(2),HealthCap(10){
+        probWithoutBeingAttacked(0.f),atkRange(2),HealthCap(10),
+      currentFrame(0), animationTimer(0.f), animationSpeed(0.1f), isAnimating(false), currentAction("idle"){
         sprite.setPosition(position);
         sprite.setTexture(texture);
-        sprite.setScale(sx,sy);
+        Vector2u textureSize = texture.getSize();
+
+        float baseScaleX = 15.f / static_cast<float>(41.f);
+        float baseScaleY = 15.f / static_cast<float>(41.f);
+        
+
+        float finalScaleX = baseScaleX * sx;
+        float finalScaleY = baseScaleY * sy;
+        sprite.setScale(finalScaleX,finalScaleY);
+        sprite.setTextureRect(IntRect(0,0,41,41));
+        for(int i=0;i<4;i++){
+            idleFrames.emplace_back(IntRect(i*41,0,41,41));
+            moveRightFrames.emplace_back(IntRect(i*41,41,41,41));
+            moveLeftFrames.emplace_back(IntRect(i*41,2*41,41,41));
+            invisiFrames.emplace_back(IntRect(i*41,5*41,41,41));
+        }
+        for(int i=0;i<2;i++){
+            ladderFrames.emplace_back(IntRect(i*41,3*41,41,41));
+            jumpFrames.emplace_back(IntRect(i*41,4*41,41,41));
+            attackFrames.emplace_back(IntRect(i*41,7*41,41,41));
+        }
+        for(int i=0;i<3;i++){
+        dodgeFrames.emplace_back(IntRect(i*41,6*41,41,41));
+        }
+        dieFrames.emplace_back(IntRect(0,8*41,41,41));
         money=1000;
         invisiTime=0.f;
         lastUseTime = std::chrono::steady_clock::now();
@@ -23,6 +48,19 @@ MovableObject::MovableObject(float x, float y, const sf::Texture& texture,float 
         originalValues.initprob=0.f;// 7
         originalValues.atkRange=2;// 8
         originalValues.healthCap=10;// 9
+        
+        idleTimer=0.f;
+        idleSpeed=0.2f;
+        moveTimer=0.f;
+        moveSpeed=0.2f;
+        ladderTimer=0.f;
+        ladderSpeed=0.16f;
+        invisiTimer=0.f;
+        invisiTimer2=0.f;
+        invisiSpeed=0.1f;
+        atkTimer=0.f;
+        atkSpeed=0.4f;
+
     }
 bool MovableObject::checkCollision(float newX,float newY, vector<vector<Tile>>&mapData, float tileWidth, float tileHeight,int select){
         int left=newX/tileWidth;//角色左边所在瓦片的索引
@@ -119,6 +157,7 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
         //2:向左检测,应该检测左上和左下
         //3:向上检测,应该检测左上和右上
         //4;向下检测,应该检测左下和右下
+        bool isIdle=true;
         triggerReusableItems();
         if(gamePaused){
             return;
@@ -156,26 +195,54 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             position.y += (speed / 2) * deltaTime;
         }
         }//检测掉落
-        //普通墙体
         if (Keyboard::isKeyPressed(Keyboard::J)) {
-        attack(slimes);  // 调用攻击方法
+            if(attack(slimes)){
+                if(!isAnimating||currentAction=="idle"||currentAction=="moveLeft"||currentAction=="moveRight"){
+                currentAction="attack";
+                isAnimating=true;
+                int px=(left+right)/2;
+                int py=(top+bottom)/2;
+                int t=0;
+                for(int i=-atkRange;i<=atkRange;i++){
+                    if(mapData[py][px+i].tileType==91){
+                        if(i<=0){
+                            t=1;
+                        }else{
+                            t=0;
+                        }
+                        break;
+                    }
+                }
+                currentFrame=t;
+            }
+            }
         }
+        // 隐身
         if(Keyboard::isKeyPressed(Keyboard::H)&& canUseInvisibility()){
+            isIdle=false;
+            if(!isAnimating||currentAction=="idle"||currentAction=="moveLeft"||currentAction=="moveRight"){
+                currentAction="invisi";
+                isAnimating=true;
+                currentFrame=0;
+            }
             startInvisibility();
         }
         checkInvisibilityCooldowm(deltaTime);
-        // if (isOnMucous) {
-        //     speed *= 0.5f;
-        //     jumpHeight *= 0.7f;
-        // } else {
-        //     speed = 350.f; // 恢复默认速度
-        //     jumpHeight = 533.f; // 恢复默认跳跃高度
-        // }
-        if(!isOnIce){
+
+        if(!isOnIce){//不在冰面
             inertiaSpeed=0; 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+            isIdle=false;
+            if(!isAnimating){
+                isAnimating=true;
+                currentAction="moveRight";
+                currentFrame=0;
+            }
+            if(isAnimating&&currentAction=="jump"){
+                currentFrame=0;
+                checkJumpAndMove=true;
+            }
             if (!checkCollision(position.x + speed * deltaTime, position.y, mapData, tileWidth, tileHeight,1)) {
-
                 position.x += speed * deltaTime;//向右移动
                 if(isOnMucous){
                     position.x-=0.3*speed*deltaTime;
@@ -183,6 +250,16 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+            isIdle=false;
+            if(!isAnimating){
+                isAnimating=true;
+                currentAction="moveLeft";
+                currentFrame=0;
+            }
+            if(isAnimating&&currentAction=="jump"){
+                currentFrame=1;
+                checkJumpAndMove=true;
+            }
             if (!checkCollision(position.x - speed * deltaTime, position.y, mapData, tileWidth, tileHeight,2)) {
                 position.x -= speed * deltaTime;//向左移动
                 if(isOnMucous){
@@ -191,13 +268,17 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }
         }
         }
-        
-            //cout<<0<<endl;
-        
+
         if(isOnIce){//冰面
         //cout<<1<<endl;
             float ks=0.f;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                isIdle=false;
+                if(!isAnimating){
+                    isAnimating=true;
+                    currentAction="moveRight";
+                    currentFrame=0;
+                }
                 inertiaSpeed=speed;
                 if (!checkCollision(position.x + inertiaSpeed * deltaTime, position.y, mapData, tileWidth, tileHeight,1)) {
                     position.x += inertiaSpeed * deltaTime;//向右移动
@@ -208,6 +289,12 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
                 ks=1.0f;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                isIdle=false;
+                if(!isAnimating){
+                    isAnimating=true;
+                    currentAction="moveLeft";
+                    currentFrame=0;
+                }
                 inertiaSpeed=-speed;
                 if (!checkCollision(position.x - inertiaSpeed * deltaTime, position.y, mapData, tileWidth, tileHeight,2)) {
                     position.x += inertiaSpeed * deltaTime;//向左移动
@@ -228,36 +315,49 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }
 
         }
-        // 风场效果
+        // 左右风场效果
         if (isInWindLR) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
+                isIdle=false;
                 position.x += (speed * 1.2f) * deltaTime;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
+                isIdle=false;
                 position.x -= (speed * 1.2f) * deltaTime;
             }
         }
-        // if (isInWindUD) {
-
-        //     if (verticalSpeed > 0) { // 下落
-        //         verticalSpeed *= 0.7f;
-        //     } else if (verticalSpeed < 0) { // 上升
-        //         verticalSpeed *= 1.5f;
-        //     }
-
-        // }
         // 梯子效果
         if (isOnLadder) {
+
             verticalSpeed = 0;
             isJumping = false;
+            bool flag=true;
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+                isIdle=false;
+                if(!isAnimating){
+                    currentFrame=0;
+                    isAnimating=true;
+                    currentAction="Ladder";
+                }
                 position.y -= 0.8*speed * deltaTime;
+                flag=false;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+                isIdle=false;
+                if(!isAnimating){
+                    currentFrame=0;
+                    isAnimating=true;
+                    currentAction="Ladder";
+                }
                 position.y += 0.8*speed * deltaTime;
+                flag=false;
+            }
+            if(flag){
+                isAnimating=false;
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !isJumping) {
+            isIdle=false;
             isJumping = true;
             verticalSpeed = -jumpHeight;//跳跃时给予一个负的初速度
             if(isOnMucous){
@@ -265,6 +365,15 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }
         }
         if(isJumping){
+            isIdle=false;
+            isAnimating=true;
+            currentAction="jump";
+            if(!checkJumpAndMove){
+                currentFrame=0;
+            }
+            if(checkJumpAndMove){
+                checkJumpAndMove=false;
+            }
             if(!checkCollision(position.x, position.y - (speed/2) * deltaTime, mapData, tileWidth, tileHeight,3)&&verticalSpeed<0){
                 if(isInWindUD){
                     position.y+=verticalSpeed*deltaTime;
@@ -277,6 +386,7 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }//停止上升
             if(verticalSpeed>=0){
                 if(!checkCollision(position.x, position.y + (speed/2) * deltaTime, mapData, tileWidth, tileHeight,4)){
+                    //上下风场效果
                     if(isInWindUD){
                         position.y-=0.2*verticalSpeed*deltaTime;
                     }
@@ -285,15 +395,38 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
                 }
             }//降落
         }
-        if(checkCollision(position.x, position.y + speed * deltaTime, mapData, tileWidth, tileHeight,4)){
+        if(checkCollision(position.x, position.y+0.8*speed*deltaTime, mapData, tileWidth, tileHeight,4)){
             isJumping=false;
+            // isAnimating=false;
         }//停止降落
+        if(!isJumping&&currentAction=="jump"){
+            isIdle=true;
+        }
+        if(isIdle==true){
+            if(currentAction=="invisi"&&invisiTimer2<0.39f){
+                isAnimating=isAnimating;
+            }else if(currentAction=="attack"&&atkTimer<0.4f){
+                isAnimating=isAnimating;
+            }
+            else{
+                isAnimating=false;
+            }
+        }
+        if(invisiTimer2>=0.39f){
+            invisiTimer2=0.f;
+        }
+        if(!isAnimating){
+
+            currentFrame=0;
+            currentAction="idle";
+        }
+        updateAnimation(deltaTime);
         sprite.setPosition(position);  // 更新精灵的位置
 }
 void MovableObject::render(RenderWindow&window){
     window.draw(sprite);
 }
-void MovableObject::attack(vector<Slime>& slimes){
+bool MovableObject::attack(vector<Slime>& slimes){
     // 只有在攻击冷却时间过去后才能攻击
     if (chrono::duration<float>(chrono::steady_clock::now() - lastAttackTime).count() >= attackCooldown) {
         // 遍历所有史莱姆并检测攻击范围
@@ -311,6 +444,9 @@ void MovableObject::attack(vector<Slime>& slimes){
 
         // 重置攻击时间
         lastAttackTime = chrono::steady_clock::now();
+        return true;
+    }else{
+        return false;
     }
 }
 
@@ -380,6 +516,60 @@ void MovableObject::applyItemEffect(int ID){
         // 暂时不处理
     }else if(items[ID].id=="42"){
         // 暂时不处理
+    }
+}
+void MovableObject::updateAnimation(float deltaTime){
+    if(currentAction=="idle"){
+        idleTimer+=frameClock.restart().asSeconds();
+        if(idleTimer>=idleSpeed){
+            idleTimer=0.f;
+            sprite.setTextureRect(idleFrames[currentFrame]);
+            currentFrame = (currentFrame + 1) % idleFrames.size();
+        }
+    }else if(currentAction=="moveRight"){
+        moveTimer+=frameClock.restart().asSeconds();
+        if(moveTimer>=moveSpeed){
+            moveTimer=0.f;
+            sprite.setTextureRect(moveRightFrames[currentFrame]);
+            currentFrame=(currentFrame+1)%moveRightFrames.size();
+        }
+    }else if(currentAction=="moveLeft"){
+        moveTimer+=frameClock.restart().asSeconds();
+        if(moveTimer>=moveSpeed){
+            moveTimer=0.f;
+            sprite.setTextureRect(moveLeftFrames[currentFrame]);
+            currentFrame=(currentFrame+1)%moveLeftFrames.size();
+        }
+    }
+    else if(currentAction=="Ladder"){
+        ladderTimer+=frameClock.restart().asSeconds();
+        if(ladderTimer>=ladderSpeed){
+            ladderTimer=0.f;
+            sprite.setTextureRect(ladderFrames[currentFrame]);
+            currentFrame=(currentFrame+1)%ladderFrames.size();
+        }
+    }else if(currentAction=="jump"){
+        sprite.setTextureRect(jumpFrames[currentFrame]);
+    }else if(currentAction=="invisi"){
+        invisiTimer+=frameClock.restart().asSeconds();
+        invisiTimer2+=frameClock.restart().asSeconds();
+        sprite.setTextureRect(invisiFrames[currentFrame]);
+        if(invisiTimer>=invisiSpeed){
+            invisiTimer=0.f;
+            
+            currentFrame=(currentFrame+1);
+            if(currentFrame==4){
+                isAnimating=false;
+            }
+            
+        }
+    }else if(currentAction=="attack"){
+        atkTimer+=frameClock.restart().asSeconds();
+        sprite.setTextureRect(attackFrames[currentFrame]);
+        if(atkTimer>=atkSpeed){
+            atkTimer=0.f;
+            isAnimating=false;
+        }
     }
 }
 json load_map(const string& filename){

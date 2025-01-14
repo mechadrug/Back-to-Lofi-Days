@@ -43,4 +43,6 @@ extern float globalScaleY;
 extern unordered_map<int,bool>acCheck;
 
 extern unordered_map<int,wstring>gameRules;
+
+extern bool checkJumpAndMove;
 #endif

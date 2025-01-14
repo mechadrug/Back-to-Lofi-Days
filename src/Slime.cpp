@@ -30,7 +30,7 @@ void Slime::update(MovableObject& target) {
 void Slime::attack(MovableObject& target) {
     // 攻击逻辑
     if(target.InvisibleForSlime()){
-        cout<<"I cant see you"<<endl;
+        cout<<"I can't see you"<<endl;
         return;
     }
     target.takeDamage(attackDamage);
