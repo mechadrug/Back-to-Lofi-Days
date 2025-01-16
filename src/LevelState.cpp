@@ -2,7 +2,7 @@
 #include "../include/EndState.h"
 #include "../include/Game.h"
 #include "../include/TexturePool.h"
-
+#include "../include/AudioManager.h"
 
 
 LevelState::LevelState(Game*game): game(game),manager(),shop(){
@@ -36,6 +36,12 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
     panel.setPosition(-panelWidth, 200.f); // 初始位置在屏幕外
 
     isPanelVisible = false; // 初始时不显示
+
+    lightRadius=150.f;
+    maskTexture.create(windowSize.x,windowSize.y);
+    lightCircle=CircleShape(lightRadius);
+    lightCircle.setOrigin(lightRadius,lightRadius);
+    lightCircle.setFillColor(Color(255,255,255,0));
 }
 void LevelState::handleInput(RenderWindow& window){
     Event event;
@@ -43,6 +49,12 @@ void LevelState::handleInput(RenderWindow& window){
         if(event.type==Event::Closed){
             window.close();
         }
+        // if(event.type==Event::KeyPressed){
+        //     if(event.key.code==Keyboard::O){
+        //         AudioManager::getInstance().playSoundEffect("bloodUp", SoundPriority::MEDIUM);
+        //     }
+        //     return;
+        // }
         if(event.type==Event::KeyPressed){
             if(event.key.code==Keyboard::Enter){
                 game->changeState(make_unique<EndState>(game));
@@ -62,7 +74,7 @@ void LevelState::handleInput(RenderWindow& window){
             game->changeState(make_unique<EndState>(game));
             return;
         }
-
+        
         sidebar.isClickOpener(window);
         if(sidebar.isSidebarVisible()){
             isPanelVisible = true;
@@ -78,7 +90,8 @@ void LevelState::handleInput(RenderWindow& window){
 void LevelState::update(){
     //bottomleft:(0,y0);bottomright:(x0,y0);topleft:(0,0);topright(x0,0)
     float deltaTime=clock.restart().asSeconds();//获取帧时间差
-    girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes());
+    DELTATIME=deltaTime;
+    girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes(),manager.getIceSlimes());
     manager.updateSlime(girl);
     manager.updateCoin(girl);
     if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==51){
@@ -194,6 +207,29 @@ void LevelState::render(RenderWindow& window){
     // window.draw(border);
     manager.renderMap(window,manager.getCurrentMapData());
     girl.render(window);
+    if(manager.returnIdx()==2){
+         // 绘制黑色蒙版
+    maskTexture.clear(sf::Color::Transparent);
+    Vector2u windowSize = game->getWindow().getSize();
+    // 绘制半透明黑色全屏矩形
+    sf::RectangleShape blackRect(sf::Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)));
+    blackRect.setFillColor(sf::Color(0, 0, 0, 200)); // 半透明黑色
+    maskTexture.draw(blackRect);
+
+    // 设置光照圆形的位置为玩家位置
+    lightCircle.setPosition(girl.getPosition());
+    maskTexture.draw(lightCircle, sf::BlendNone); // 使用无混合模式绘制透明区域
+
+    maskTexture.display();
+
+    // 获取蒙版纹理并设置混合模式为Multiply
+    sf::Sprite maskSprite(maskTexture.getTexture());
+    sf::RenderStates states;
+    states.blendMode = sf::BlendMultiply;
+
+    // 将蒙版渲染到窗口
+    window.draw(maskSprite, states);
+    }
     //shop.update(window);
     //shop.render(window);
     //window.draw(panel);

@@ -32,6 +32,10 @@ class LevelState: public GameState{
     float panelHeight;        // 横拉条的高度
     bool isPanelVisible;      // 横拉条是否可见
     SidebarManager sidebar;
+
+    RenderTexture maskTexture;
+    CircleShape lightCircle;
+    float lightRadius;
     public:
     LevelState(Game* game);
     void handleInput(RenderWindow& window) override;

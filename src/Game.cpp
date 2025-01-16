@@ -27,6 +27,7 @@ void Game::run(){
             currentState->update();
             currentState->render(window);
             //处理交互更新渲染三部曲.
+            AudioManager::getInstance().update();
         }
     }
 }//游戏主循环!

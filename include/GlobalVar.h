@@ -7,6 +7,8 @@
 #include <SFML/Window.hpp>
 #include <memory>
 #include "Item.h"
+#include "AudioManager.h"
+#include <utility>
 using namespace std;
 using namespace sf;
 extern bool gamePaused;
@@ -45,4 +47,15 @@ extern unordered_map<int,bool>acCheck;
 extern unordered_map<int,wstring>gameRules;
 
 extern bool checkJumpAndMove;
+
+extern float DELTATIME;
+extern AudioManager&audio;
+struct pair_hash {
+    std::size_t operator()(const std::pair<int, int>& p) const {
+        return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second) << 1);
+    }
+};
+extern unordered_map<pair<int,int>,bool,pair_hash>rightCube;
+
+extern int c_idx;
 #endif

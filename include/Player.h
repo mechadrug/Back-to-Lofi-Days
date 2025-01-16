@@ -11,6 +11,7 @@
 #include<unordered_map>
 #include<cstdlib>
 #include<ctime>
+#include "AudioManager.h"
 // #include "Backpack.h"
 // #include "Shop.h"
 //#include "Item.h"
@@ -19,7 +20,8 @@ using namespace sf;
 using json=nlohmann::json;
 
 class Slime;
-
+class RandomWalkingSlime;
+class MissileSlime;
 struct Tile{
     //瓷砖的编码
     int tileType;
@@ -80,6 +82,10 @@ struct Tile{
     //70
     bool m9t7;
     //71
+    //12
+    bool musicCube;
+    //一开始为假;采用和碎墙一样的渲染方式,如果站上去就判定为真,直接渲染.
+    bool rightPlace;
     bool intoExit;
     bool isChange;
     chrono::duration<float> standingTime; //累计站立时间
@@ -186,15 +192,19 @@ class MovableObject{
     bool isAnimating;                            // 是否正在播放动画
     string currentAction;                   // 当前动画状态 (idle, move, attack等)
 
-
+    
     /*动画参数结束*/
+    bool mapFourWin;
+
     public:
     //等待实现方法:检测冰墙(增加滑动);检测碎墙(站上去之后过一秒这个墙就不能站人了);检测水域(主角掉进水里,直接死亡,跳到结算界面)
     MovableObject()=default;
+    MovableObject(float x,float y,const Texture&texture,float sx,float sy,int choose);
     MovableObject(float x, float y, const Texture& texture,float sx,float sy);
-    void update(float deltaTime, vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<Slime>&slimes);
+    void update(float deltaTime, vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes);
     void render(RenderWindow& window);
     void updateStandingTime(float newX,float newY, vector<std::vector<Tile>>& mapData,float tileWidth, float tileHeight);
+    void updateCube(float newX,float newY,vector<std::vector<Tile>>& mapData,float tileWidth, float tileHeight);
     bool checkCollision(float newX,float newY, vector<vector<Tile>>&mapData, float tileWidth, float tileHeight,int select);//检测角色碰撞
     bool toExit( vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
     bool checkwater( vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
@@ -207,6 +217,10 @@ class MovableObject{
     };
     Vector2f getPosition() const {
         return position; // 返回存储的实际位置
+    }
+    void setPosition(Vector2f newPos){
+        position+=newPos;
+        sprite.setPosition(position);
     }
     sf::FloatRect getBounds() const {
         return sprite.getGlobalBounds();  // 获取 sprite 的边界框
@@ -221,7 +235,7 @@ class MovableObject{
     bool isAlive(){
         return !isDead;
     }
-    bool attack(vector<Slime>&slimes);
+    bool attack(vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&Iceslimes);
 
     void startInvisibility();
     void checkInvisibilityCooldowm(float deltaTime);
@@ -388,6 +402,69 @@ class MovableObject{
 
     // 动画函数
     void updateAnimation(float deltaTime);
+
+
+    //map4 check
+    void resetToStartPosition(){
+    Vector2f topLeft=Vector2f(0.f, 0.f);  // 左上角
+    Vector2f topRight=Vector2f(static_cast<float>(window_sz.x), 0.f);  // 右上角
+    Vector2f bottomLeft=Vector2f(0.f, static_cast<float>(window_sz.y));  // 左下角
+    Vector2f bottomRight=Vector2f(static_cast<float>(window_sz.x), static_cast<float>(window_sz.y));  // 右下角
+    float gsx=bottomRight.x-45.f*fx;
+    float gsy=bottomRight.y-32.f*fy;
+        position.x=gsx;
+        position.y=gsy;
+        sprite.setPosition(position);
+    }
+    void changePosition(){
+        
+    float gsx=32.f*fx;
+    float gsy=32.f*fy;
+    position.x=gsx;
+    position.y=gsy;
+    sprite.setPosition(position);
+    
+    }
+    // 安全访问mapData的函数
+    const Tile* getTileSafe(int x, int y, const std::vector<std::vector<Tile>>& mapData) const {
+        if (y >= 0 && y < static_cast<int>(mapData.size()) &&
+            x >= 0 && x < static_cast<int>(mapData[0].size())) {
+            return &mapData[y][x];
+        }
+        return nullptr;
+    }
+
+    // 将位置限制在地图有效范围内的函数
+    void clampPosition(float tileWidth, float tileHeight, const std::vector<std::vector<Tile>>& mapData) {
+        // float maxX = (mapData[0].size() * tileWidth) - sprite.getGlobalBounds().width;
+        // float maxY = (mapData.size() * tileHeight) - sprite.getGlobalBounds().height;
+
+        // bool clamped = false;
+
+        // if (position.x < 0.f) {
+        //     position.x = 0.f;
+        //     clamped = true;
+        // } else if (position.x > maxX) {
+        //     position.x = maxX;
+        //     clamped = true;
+        // }
+
+        // if (position.y < 0.f) {
+        //     position.y = 0.f;
+        //     clamped = true;
+        // } else if (position.y > maxY) {
+        //     position.y = maxY;
+        //     clamped = true;
+        // }
+
+        // if (clamped) {
+        //     cout<<"111"<<endl;
+        //     std::cerr << "位置已被裁剪到地图范围内: (" << position.x << ", " << position.y << ")" << std::endl;
+        // }
+    }
+    FloatRect getGlobalBounds(){
+        return sprite.getGlobalBounds();
+    }
 };
 //void attack();
     //void useInvisibility();

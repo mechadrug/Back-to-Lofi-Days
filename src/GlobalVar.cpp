@@ -136,6 +136,27 @@ unordered_map<int, wstring> gameRules = {
 };
 
 bool checkJumpAndMove=false;
+float DELTATIME=0.1f;
+AudioManager&audio=AudioManager::getInstance();
+
+unordered_map<pair<int,int>,bool,pair_hash>rightCube={
+    {{24,3},true},
+    {{24,9},true},
+    {{24,15},true},
+    {{24,18},true},
+    {{24,24},true},
+    {{24,30},true},
+    {{23,33},true},
+    {{24,36},true},
+    {{23,6},false},
+    {{23,12},false},
+    {{23,21},false},
+    {{23,27},false},
+    {{24,34},false}
+
+};
+
+int c_idx=0;
 // wstring rule=L"规则:\n
 // 1.游戏目标:扮演lofi girl离开虫洞\n
 // 2.操作:A--向左移动   D--向右移动   Space--跳跃 W--上梯子 S--下梯子 R--使用道具 J--攻击(近距离&&远距离取决于装备的效果)

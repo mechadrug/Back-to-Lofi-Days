@@ -38,3 +38,79 @@
 
 //     return 0;
 // }
+#include "../include/AudioManager.h"
+#include <iostream>
+#include <SFML/System.hpp> // 包含 SFML 的系统头文件
+
+// 辅助函数：将 sf::Sound::Status 转换为字符串
+std::string soundStatusToString(sf::Sound::Status status) {
+    switch (status) {
+        case sf::Sound::Stopped: return "Stopped";
+        case sf::Sound::Paused: return "Paused";
+        case sf::Sound::Playing: return "Playing";
+        default: return "Unknown";
+    }
+}
+
+int main() {
+    AudioManager& audio = AudioManager::getInstance();
+
+    // 加载音效
+    if (!audio.loadSoundEffect("bloodUp", "../resources/sounds/bloodUp.wav")) {
+        std::cerr << "Failed to load sound effect 'bloodUp'." << std::endl;
+        return -1;
+    }
+    if (!audio.loadSoundEffect("jump", "../resources/sounds/jump.wav")) {
+        std::cerr << "Failed to load sound effect 'jump'." << std::endl;
+        return -1;
+    }
+    if (!audio.loadSoundEffect("attack", "../resources/sounds/attack.wav")) {
+        std::cerr << "Failed to load sound effect 'attack'." << std::endl;
+        return -1;
+    }
+    if (!audio.loadSoundEffect("click", "../resources/sounds/push.wav")) {
+        std::cerr << "Failed to load sound effect 'click'." << std::endl;
+        return -1;
+    }
+
+    // 加载音乐
+    std::vector<std::pair<std::string, std::string>> musicFiles = {
+        {"battle", "../resources/sounds/music/game1.mp3"},
+        {"explosion_music", "../resources/sounds/music/game2.mp3"},
+        {"water_music", "../resources/sounds/music/game3.mp3"},
+        {"death_music", "../resources/sounds/music/game4.mp3"}
+    };
+    audio.loadMusicFiles(musicFiles);
+
+    // 播放随机音乐
+    audio.playRandomMusic();
+
+    std::cout << "Press 'j' to jump, 'a' to attack, 'c' to click, 'b' to play 'bloodUp' sound." << std::endl;
+    std::cout << "Press 'q' to quit." << std::endl;
+
+    char input;
+    while (std::cin >> input) {
+        switch (input) {
+            case 'j':
+                audio.playSoundEffect(SoundChannel::Player, "jump", SoundPriority::MEDIUM);
+                break;
+            case 'a':
+                audio.playSoundEffect(SoundChannel::Player, "attack", SoundPriority::HIGH);
+                break;
+            case 'c':
+                audio.playSoundEffect(SoundChannel::System, "click", SoundPriority::MEDIUM);
+                break;
+            case 'b':
+                audio.playSoundEffect(SoundChannel::Monster, "bloodUp", SoundPriority::HIGH);
+                break;
+            case 'q':
+                std::cout << "Quitting test." << std::endl;
+                return 0;
+            default:
+                std::cout << "Unknown input. Press 'j' to jump, 'a' to attack, 'c' to click, 'b' to play 'bloodUp' sound, 'q' to quit." << std::endl;
+        }
+    }
+
+    return 0;
+}
+

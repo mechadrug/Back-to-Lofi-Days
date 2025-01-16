@@ -25,6 +25,48 @@ using namespace std;
     startButton=Button(startButtonX,startButtonY,buttonWidth,buttonHeight,"../resources/images/start.png");
     exitButton=Button(exitButtonX,exitButtonY,exitButttonWidth,buttonHeight,"../resources/images/exit.png");
     background=Map("../resources/images/menuBg.png");
+
+    //
+    // 批量加载音乐文件从game1.mp3到game10.mp3
+    std::vector<std::pair<std::string, std::string>> musicFiles;
+    for(int i = 1; i <= 12; ++i){
+        std::string name = "game" + std::to_string(i);
+        std::string path = "../resources/sounds/music/game" + std::to_string(i) + ".mp3";
+        musicFiles.emplace_back(std::make_pair(name, path));
+    }
+
+    // 批量加载音乐文件
+    audio.loadMusicFiles(musicFiles);
+    audio.loadMusic("birthday","../resources/sounds/music/zmusicHappyBirthday.mp3");
+    audio.loadMusic("tail","../resources/sounds/music/zmusicTailSong.mp3");
+    audio.loadSoundEffect("attack","../resources/sounds/attack.wav");
+    audio.loadSoundEffect("beHitted","../resources/sounds/beHitted.wav");
+    audio.loadSoundEffect("bloodUp","../resources/sounds/bloodUp.wav");
+    audio.loadSoundEffect("bobSlimeATK","../resources/sounds/bobSlimeATK.wav");
+    audio.loadSoundEffect("bobSlimeDie","../resources/sounds/bobSlimeDie.wav");
+    audio.loadSoundEffect("drop","../resources/sounds/drop.wav");
+    audio.loadSoundEffect("equipItem","../resources/sounds/equipItem.wav");
+    audio.loadSoundEffect("failToBuy","../resources/sounds/failToBuy.wav");
+    audio.loadSoundEffect("fetch","../resources/sounds/fetch.wav");
+    audio.loadSoundEffect("footSteps","../resources/sounds/footSteps.wav");
+    audio.loadSoundEffect("gameFail","../resources/sounds/gameFail.wav");
+    audio.loadSoundEffect("gameVictory","../resources/sounds/gameVictory.wav");
+    audio.loadSoundEffect("harp","../resources/sounds/harp.wav");
+    audio.loadSoundEffect("hint","../resources/sounds/hint.wav");
+    audio.loadSoundEffect("iceSlimeATKClose","../resources/sounds/iceSlimeATKClose.wav");
+    audio.loadSoundEffect("iceSlimeATKFur","../resources/sounds/iceSlimeATKFur.wav");
+    audio.loadSoundEffect("iceSlimeDie","../resources/sounds/iceSlimeDie.wav");
+    audio.loadSoundEffect("idleSing","../resources/sounds/idleSing.wav");
+    audio.loadSoundEffect("jump","../resources/sounds/jump.wav");
+    audio.loadSoundEffect("push","../resources/sounds/push.wav");
+    audio.loadSoundEffect("select","../resources/sounds/select.wav");
+    audio.loadSoundEffect("spySlimeDie","../resources/sounds/spySlimeDie.wav");
+    audio.loadSoundEffect("successToBuy","../resources/sounds/successToBuy.wav");
+    audio.loadSoundEffect("trumpette","../resources/sounds/trumpette.wav");
+
+
+    // 开始随机播放音乐
+    audio.playRandomMusic();
  }
 
 void MenuState::handleInput(RenderWindow& window){

@@ -58,6 +58,7 @@ void Rule::handleClick(const sf::Vector2i& mousePos,MovableObject& girl) {
     
     // 如果鼠标点击的位置在Rule按钮范围内
     if (ruleButton.isPressed(mousePos)) {
+        audio.playSoundEffect(SoundChannel::System,"hint",SoundPriority::MEDIUM);
         if (isRuleOpen) {
             closeRule();  // 关闭rule
             usingSystem=0;

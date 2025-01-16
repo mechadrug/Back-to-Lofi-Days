@@ -71,6 +71,8 @@ void Achievements::handleClick(const sf::Vector2i& mousePos) {
     }
     // 如果鼠标点击的位置在商店按钮范围内
     if (acButton.isPressed(mousePos)) {
+        audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
+
         if (isAcOpen) {
             closeShop();  // 关闭商店
             //gamePaused = false;  // 恢复游戏
@@ -87,6 +89,8 @@ void Achievements::showACInfo(const sf::Vector2i& mousePos) {
     // 遍历成就按钮，找到鼠标左键点击的成就按钮，显示需要完成该成就要达成的目标
     for (auto& AC : acButtons) {
         if (AC.isPressed(mousePos)) {
+            audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
+
             AC.changeShowdt();
             clickClock.restart();
             return;

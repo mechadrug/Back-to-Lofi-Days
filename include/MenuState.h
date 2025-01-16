@@ -1,6 +1,3 @@
-
-
-
 #ifndef MENUSTATE_H
 #define MENUSTATE_H
 
@@ -8,6 +5,7 @@
 #include "Button.h"
 #include <memory>
 #include "Map.h"
+#include "AudioManager.h"
 using namespace std;
 using namespace sf;
 

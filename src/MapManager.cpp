@@ -2,7 +2,10 @@
 
 MapManager::MapManager() : currentMapIndex(0) {
     brokenWallSprite.setTexture(brokenWallTexture);
+    iceCubeSprite.setTexture(iceCubeTexture);
     firstLoadSlime=false;
+    firstLoadFlySlime=false;
+    firstLoadIceSlime=false;
 }
 
 void MapManager::loadMapData(const std::string& mapConfigFile) {
@@ -27,12 +30,33 @@ void MapManager::loadMapData(const std::string& mapConfigFile) {
         for(int y1=0;y1<30;y1++){
             for(int x1=0;x1<40;x1++){
                 if(mapData[y1][x1].tileType==91){
-                    slimes.emplace_back(x1*16.f*sx,y1*16.f*sy,slime);
+                    slimes.emplace_back(make_unique<Slime>(x1*16.f*sx,y1*16.f*sy,slime));
 
                 }
             }
         }
     firstLoadSlime=true;
+    }
+    if(!firstLoadFlySlime){
+        for(int y1=0;y1<30;y1++){
+            for(int x1=0;x1<40;x1++){
+                if(mapData[y1][x1].tileType==92){
+                    RWslimes.emplace_back(make_unique<RandomWalkingSlime>(x1*16.f*sx,y1*16.f*sy,RWslime));
+
+                }
+            }
+        }
+    firstLoadFlySlime=true;
+    }
+    if(!firstLoadIceSlime){
+        for(int y1=0;y1<30;y1++){
+            for(int x1=0;x1<40;x1++){
+                if(mapData[y1][x1].tileType==93){
+                    iceSlimes.emplace_back(make_unique<MissileSlime>(x1*16.f*sx,y1*16.f*sy,iceSlime,leftBoom,rightBoom));
+                }
+            }
+        }
+    firstLoadIceSlime=true;
     }
 }
 
@@ -48,21 +72,44 @@ void MapManager::switchMap(int mapIndex, MovableObject& girl,float x,float y) {
         throw std::runtime_error("Invalid map index!");
     }
     currentMapIndex = mapIndex-1;
-
+    c_idx=currentMapIndex;
     // 重新加载地图数据
+    if(c_idx==3){
+        audio.playSpecificMusic("birthday",true);
+    }else{
+        audio.playRandomMusic();
+
+    }
     loadMapData("../configs/finalMap" + std::to_string(mapIndex) + ".json");
     girl.changePositionBetweenMap(x,y);
     slimes.clear();
+    RWslimes.clear();
+    iceSlimes.clear();
     float sx=backgrounds[currentMapIndex].returnScaleX();
     float sy=backgrounds[currentMapIndex].returnScaleY();
     for(int y1=0;y1<30;y1++){
         for(int x1=0;x1<40;x1++){
-            if(mapData[y1][x1].tileType==100){
-                slimes.emplace_back(x1*16.f*sx,y1*16.f*sy,slime);
+            if(mapData[y1][x1].tileType==91){
+                slimes.emplace_back(make_unique<Slime>(x1*16.f*sx,y1*16.f*sy,slime));
 
             }
         }
     }
+    for(int y1=0;y1<30;y1++){
+        for(int x1=0;x1<40;x1++){
+            if(mapData[y1][x1].tileType==92){
+                RWslimes.emplace_back(make_unique<RandomWalkingSlime>(x1*16.f*sx,y1*16.f*sy,RWslime));
+
+            }
+        }
+    }
+    for(int y1=0;y1<30;y1++){
+            for(int x1=0;x1<40;x1++){
+                if(mapData[y1][x1].tileType==93){
+                    iceSlimes.emplace_back(make_unique<MissileSlime>(x1*16.f*sx,y1*16.f*sy,iceSlime,leftBoom,rightBoom));
+                }
+            }
+        }
 }
 
 void MapManager::renderMap(RenderWindow& window, const std::vector<std::vector<Tile>>& mapData) {
@@ -85,8 +132,26 @@ void MapManager::renderMap(RenderWindow& window, const std::vector<std::vector<T
             }
         }
     }
+    // 渲染红色冰块
+    for (int y = 0; y < 30; y++) {
+        for (int x = 0; x < 40; x++) {
+            if (mapData[y][x].tileType ==12 && mapData[y][x].rightPlace) {
+                float tileX = x * 16.0f * backgrounds[currentMapIndex].returnScaleX();
+                float tileY = y * 16.0f * backgrounds[currentMapIndex].returnScaleY();
+                iceCubeSprite.setPosition(tileX, tileY);
+                iceCubeSprite.setScale(backgrounds[currentMapIndex].returnScaleX(), backgrounds[currentMapIndex].returnScaleY());
+                window.draw(iceCubeSprite);
+            }
+        }
+    }
     for(auto&slime:slimes){
-        slime.render(window);
+        slime->render(window);
+    }
+    for(auto&rwslime:RWslimes){
+        rwslime->render(window);
+    }
+    for(auto&slime:iceSlimes){
+        slime->render(window);
     }
 }
 
@@ -100,12 +165,24 @@ Map& MapManager::getCurrentBackground() {
 
 void MapManager::updateSlime(MovableObject&girl){
     for(auto&slime:slimes){
-        slime.update(girl);
+        slime->update(girl);
+    }
+    for(auto&rwslime:RWslimes){
+        rwslime->update(girl);
+    }
+    for(auto&slime:iceSlimes){
+        slime->update(girl);
     }
 }
 
-vector<Slime>& MapManager::getSlimes(){
+vector<unique_ptr<Slime>>& MapManager::getSlimes(){
     return slimes;
+}
+vector<unique_ptr<RandomWalkingSlime>>&MapManager::getRWSlimes(){
+    return RWslimes;
+}
+vector<unique_ptr<MissileSlime>>&MapManager::getIceSlimes(){
+    return iceSlimes;
 }
 void MapManager::updateCoin(MovableObject&girl){
     for(auto&coin:coins){

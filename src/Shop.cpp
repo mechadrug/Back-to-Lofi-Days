@@ -82,10 +82,14 @@ void Shop::handleClick(const sf::Vector2i& mousePos,MovableObject& girl) {
         /*思路: 如果购买成功,则将对应的item装入bag内部,并提醒Backpack类去更新渲染;*/
     for (auto& itemButton : itemButtons) {
         if (itemButton.isPressed(mousePos)) {
+            
             int money=girl.getMoney();
             if(itemButton.canWeBuy(money)){
+                audio.playSoundEffect(SoundChannel::System,"successToBuy",SoundPriority::MEDIUM);
                 girl.decreaseMoney(itemButton.getItemCost());
                 girl.addItemToBag(itemButton.getItemIndex());
+            }else{
+                audio.playSoundEffect(SoundChannel::System,"failToBuy",SoundPriority::MEDIUM);
             }
             clickClock.restart();
         }
@@ -94,6 +98,8 @@ void Shop::handleClick(const sf::Vector2i& mousePos,MovableObject& girl) {
     
     // 如果鼠标点击的位置在商店按钮范围内
     if (shopButton.isPressed(mousePos)) {
+        audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
+
         if (isShopOpen) {
             closeShop();  // 关闭商店
             usingSystem=0;
@@ -109,6 +115,8 @@ void Shop::showItemInfo(const sf::Vector2i& mousePos, sf::RenderWindow& window) 
     // 遍历物品按钮，找到鼠标右键点击的物品，显示物品详细信息
     for (auto& itemButton : itemButtons) {
         if (itemButton.isPressed(mousePos)) {
+            audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
+
             currentItemInfo = itemButton.maxNum()+" "+itemButton.cost();  // 获取物品的详细信息
             return;
         }

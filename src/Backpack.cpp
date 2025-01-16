@@ -89,6 +89,7 @@ void Bag::handleClick(const sf::Vector2i& mousePos) {
     
     // 如果鼠标点击的位置在背包按钮范围内
     if (bagButton.isPressed(mousePos)) {
+        audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
         if (isBagOpen) {
             closeBag();  // 关闭背包
             //gamePaused = false;  // 恢复游戏
@@ -106,6 +107,7 @@ void Bag::showItemInfo(const sf::Vector2i& mousePos, sf::RenderWindow& window) {
     // 遍历物品按钮，找到鼠标右键点击的物品，显示物品详细信息
     for (auto& itemButton : itemButtons) {
         if (itemButton.isPressed(mousePos)) {
+        audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
             currentItemInfo = itemButton.theName()+"\n"+itemButton.function();  // 获取物品的详细信息
             return;
         }
@@ -177,7 +179,10 @@ void Bag::handleItemSelection(sf::RenderWindow& window, MovableObject& girl) {
     }
         for (auto& itemButton : itemButtons) {
             if (itemButton.isPressed(sf::Mouse::getPosition(window))) {
+                audio.playSoundEffect(SoundChannel::System,"equipItem",SoundPriority::MEDIUM);
+
                 // 获取当前物品
+
                 string itemId = itemButton.getItemId();
                 int selectedItem = girl.getBag()[itemId];
 
