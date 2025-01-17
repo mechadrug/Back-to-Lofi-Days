@@ -35,6 +35,8 @@ class LevelState: public GameState{
 
     RenderTexture maskTexture;
     CircleShape lightCircle;
+    RenderTexture maskSymmetric;
+    CircleShape lightSymmertric;
     float lightRadius;
     public:
     LevelState(Game* game);

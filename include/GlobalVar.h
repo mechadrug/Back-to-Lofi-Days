@@ -56,6 +56,7 @@ struct pair_hash {
     }
 };
 extern unordered_map<pair<int,int>,bool,pair_hash>rightCube;
+extern unordered_map<pair<int,int>,bool,pair_hash>rightTree;
 
 extern int c_idx;
 #endif

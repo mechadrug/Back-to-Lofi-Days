@@ -22,6 +22,7 @@ using json=nlohmann::json;
 class Slime;
 class RandomWalkingSlime;
 class MissileSlime;
+class SpySlime;
 struct Tile{
     //瓷砖的编码
     int tileType;
@@ -86,6 +87,8 @@ struct Tile{
     bool musicCube;
     //一开始为假;采用和碎墙一样的渲染方式,如果站上去就判定为真,直接渲染.
     bool rightPlace;
+    //和rightPlace同理
+    bool tree;
     bool intoExit;
     bool isChange;
     chrono::duration<float> standingTime; //累计站立时间
@@ -195,16 +198,18 @@ class MovableObject{
     
     /*动画参数结束*/
     bool mapFourWin;
-
+    bool mapNineWin;
+    bool falldownFreely;
     public:
     //等待实现方法:检测冰墙(增加滑动);检测碎墙(站上去之后过一秒这个墙就不能站人了);检测水域(主角掉进水里,直接死亡,跳到结算界面)
     MovableObject()=default;
     MovableObject(float x,float y,const Texture&texture,float sx,float sy,int choose);
     MovableObject(float x, float y, const Texture& texture,float sx,float sy);
-    void update(float deltaTime, vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes);
+    void update(float deltaTime, vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes,vector<unique_ptr<RandomWalkingSlime>>&rwslimes,vector<unique_ptr<SpySlime>>&spyslimes);
     void render(RenderWindow& window);
     void updateStandingTime(float newX,float newY, vector<std::vector<Tile>>& mapData,float tileWidth, float tileHeight);
     void updateCube(float newX,float newY,vector<std::vector<Tile>>& mapData,float tileWidth, float tileHeight);
+    void updateTree(float newX, float newY, std::vector<std::vector<Tile>>& mapData, float tileWidth, float tileHeight);
     bool checkCollision(float newX,float newY, vector<vector<Tile>>&mapData, float tileWidth, float tileHeight,int select);//检测角色碰撞
     bool toExit( vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
     bool checkwater( vector<vector<Tile>>& mapData, float tileWidth, float tileHeight);
@@ -361,6 +366,15 @@ class MovableObject{
     void earnMoney(){
         money++;
     }
+    void earnHarp(){
+        items[12].quantity++;
+    }
+    void earnTrumpette(){
+        items[11].quantity++;
+    }
+    void earnPuff(){
+        items[10].quantity++;
+    }
     bool canPurchaseMultiple(const string& itemId) {
     return itemId == "31" || itemId == "41" || itemId == "42";  // 根据物品ID判断是否可以多次购买
     }
@@ -390,12 +404,13 @@ class MovableObject{
             std::cout << "Item " << items[ID].id << " is already in the bag!" << std::endl;
         }
     }
+    
 }
     unordered_map<string,int>& getBag(){
         return bag;
     }
-    void triggerReusableItems();
-    void applyItemEffect(int ID);
+    void triggerReusableItems(vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes,vector<unique_ptr<RandomWalkingSlime>>&rwslimes,vector<unique_ptr<SpySlime>>&spyslimes);
+    void applyItemEffect(int ID,vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes,vector<unique_ptr<RandomWalkingSlime>>&rwslimes,vector<unique_ptr<SpySlime>>&spyslimes);
 
     
     // 检测装备函数

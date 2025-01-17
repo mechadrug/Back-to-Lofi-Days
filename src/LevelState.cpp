@@ -42,6 +42,9 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
     lightCircle=CircleShape(lightRadius);
     lightCircle.setOrigin(lightRadius,lightRadius);
     lightCircle.setFillColor(Color(255,255,255,0));
+    lightSymmertric=CircleShape(lightRadius);
+    lightSymmertric.setOrigin(lightRadius,lightRadius);
+    lightSymmertric.setFillColor(Color(255,255,255,0));
 }
 void LevelState::handleInput(RenderWindow& window){
     Event event;
@@ -59,6 +62,14 @@ void LevelState::handleInput(RenderWindow& window){
             if(event.key.code==Keyboard::Enter){
                 game->changeState(make_unique<EndState>(game));
             }
+            if(event.key.code==Keyboard::Q){
+                float gsx=bottomRight.x-64.f*manager.getCurrentBackground().returnScaleX();
+                float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+                manager.switchMap(9,girl,gsx,gsy);
+                // float gsx=bottomRight.x-45.f*manager.getCurrentBackground().returnScaleX();
+                // float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
+                // manager.switchMap(4,girl,gsx,gsy);                                                                                      
+            }
             return;
         }
         if(girl.toExit(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())){
@@ -74,7 +85,6 @@ void LevelState::handleInput(RenderWindow& window){
             game->changeState(make_unique<EndState>(game));
             return;
         }
-        
         sidebar.isClickOpener(window);
         if(sidebar.isSidebarVisible()){
             isPanelVisible = true;
@@ -91,7 +101,7 @@ void LevelState::update(){
     //bottomleft:(0,y0);bottomright:(x0,y0);topleft:(0,0);topright(x0,0)
     float deltaTime=clock.restart().asSeconds();//获取帧时间差
     DELTATIME=deltaTime;
-    girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes(),manager.getIceSlimes());
+    girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes(),manager.getIceSlimes(),manager.getRWSlimes(),manager.getspySlimes());
     manager.updateSlime(girl);
     manager.updateCoin(girl);
     if(girl.changeMap(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())==51){
@@ -207,14 +217,45 @@ void LevelState::render(RenderWindow& window){
     // window.draw(border);
     manager.renderMap(window,manager.getCurrentMapData());
     girl.render(window);
-    if(manager.returnIdx()==2){
-         // 绘制黑色蒙版
+    // if(manager.returnIdx()==2||manager.returnIdx()==5){
+    //      // 绘制黑色蒙版
+    // maskTexture.clear(sf::Color::Transparent);
+    // Vector2u windowSize = game->getWindow().getSize();
+    // // 绘制半透明黑色全屏矩形
+    // sf::RectangleShape blackRect(sf::Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)));
+    // blackRect.setFillColor(sf::Color(0, 0, 0, 200)); // 半透明黑色
+    // maskTexture.draw(blackRect);
+
+    // // 设置光照圆形的位置为玩家位置
+    // lightCircle.setPosition(girl.getPosition());
+    // maskTexture.draw(lightCircle, sf::BlendNone); // 使用无混合模式绘制透明区域
+
+    // maskTexture.display();
+
+    // // 获取蒙版纹理并设置混合模式为Multiply
+    // sf::Sprite maskSprite(maskTexture.getTexture());
+    // sf::RenderStates states;
+    // states.blendMode = sf::BlendMultiply;
+
+    // // 将蒙版渲染到窗口
+    // window.draw(maskSprite, states);
+    // }
+    if (manager.returnIdx() == 2 || manager.returnIdx() == 5) {
+    // 绘制黑色蒙版
     maskTexture.clear(sf::Color::Transparent);
     Vector2u windowSize = game->getWindow().getSize();
     // 绘制半透明黑色全屏矩形
     sf::RectangleShape blackRect(sf::Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)));
     blackRect.setFillColor(sf::Color(0, 0, 0, 200)); // 半透明黑色
     maskTexture.draw(blackRect);
+
+    // 如果 idx 是 5，绘制对称的透明蒙版
+    if (manager.returnIdx() == 5) {
+        
+        Vector2f symmertricPos={windowSize.x-girl.getPosition().x,girl.getPosition().y};
+        lightSymmertric.setPosition(symmertricPos);
+        maskTexture.draw(lightSymmertric,BlendNone);
+    }
 
     // 设置光照圆形的位置为玩家位置
     lightCircle.setPosition(girl.getPosition());

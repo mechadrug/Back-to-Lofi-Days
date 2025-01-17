@@ -155,7 +155,32 @@ unordered_map<pair<int,int>,bool,pair_hash>rightCube={
     {{24,34},false}
 
 };
+unordered_map<pair<int,int>,bool,pair_hash>rightTree={
+    {{29,23},true},
+    {{29,22},true},
+    {{28,21},true},
+    {{27,20},true},
+    {{25,18},true},
+    {{22,15},true},
+    {{17,10},true},
+    {{9,2},true},
+    {{23,6},false},
+    {{26,19},false},
+    {{24,17},false},
+    {{23,16},false},
+    {{21,14},false},
+    {{20,13},false},
+    {{19,12},false},
+    {{18,11},false},
+    {{16,9},false},
+    {{15,8},false},
+    {{14,7},false},
+    {{13,6},false},
+    {{12,5},false},
+    {{11,4},false},
+    {{10,3},false}
 
+};
 int c_idx=0;
 // wstring rule=L"规则:\n
 // 1.游戏目标:扮演lofi girl离开虫洞\n

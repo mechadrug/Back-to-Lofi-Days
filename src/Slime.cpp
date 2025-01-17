@@ -3,10 +3,21 @@
 Slime::Slime(float x, float y, const sf::Texture& texture, int health, 
              int attackDamage, float attackCooldown, int detectionRange)
     : movable(x, y, texture, 1.8f, 1.8f,1), health(health), attackDamage(attackDamage),
-      attackCooldown(attackCooldown), detectionRange(detectionRange), isDead(false){}
+      attackCooldown(attackCooldown), detectionRange(detectionRange), isDead(false),sleep(false){}
 //注意这里的1.8f是暂时值之后再改动
 void Slime::update(MovableObject& target) {
     if(gamePaused){
+        return;
+    }
+    if(!sleep){
+            sleepClock.restart();
+    }
+    if(sleep){
+        if(sleepClock.getElapsedTime().asSeconds()>=2*attackCooldown){
+            sleep=!sleep;
+            sleepClock.restart();
+        }
+        
         return;
     }
     // 检测是否有目标角色在附近
@@ -99,7 +110,6 @@ void RandomWalkingSlime::moveTowardsTarget(float deltaTime) {
     } else {
         movement.x = movingPositive ? -moveSpeed * deltaTime : moveSpeed * deltaTime;
     }
-    Vector2f newpos=movement;
     movable.setPosition(movement);
     
 }
@@ -153,7 +163,18 @@ void MissileSlime::update(MovableObject& target) {
     if (isDead) {
         return;
     }
-
+    if(gamePaused) return;
+    if(!sleep){
+            sleepClock.restart();
+    }
+    if(sleep){
+        if(sleepClock.getElapsedTime().asSeconds()>=2*attackCooldown){
+            sleep=!sleep;
+            sleepClock.restart();
+        }
+        
+        return;
+    }
     // 获取史莱姆和玩家的位置
     sf::Vector2f slimePos = getPosition();
     sf::Vector2f playerPos = target.getPosition();

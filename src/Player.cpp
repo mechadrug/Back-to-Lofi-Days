@@ -69,6 +69,8 @@ MovableObject::MovableObject(float x, float y, const sf::Texture& texture,float 
 
 
         mapFourWin=false;
+        mapNineWin=false;
+        falldownFreely=false;
         c_idx=0;
 
     }
@@ -180,7 +182,7 @@ bool MovableObject::checkCollision(float newX, float newY, std::vector<std::vect
         case 1: { // 右
             const Tile* tileTopRight = getTileSafe(right, top, mapData);
             const Tile* tileBottomRight = getTileSafe(right, bottom, mapData);
-            return (tileTopRight && tileTopRight->isCollidable) || 
+            return (tileTopRight && tileTopRight->isCollidable)|| 
                    (tileBottomRight && tileBottomRight->isCollidable);
         }
         case 2: { // 左
@@ -495,9 +497,64 @@ void MovableObject::updateCube(float newX, float newY, std::vector<std::vector<T
         // 胜利检测,直接把角色的位置换到上面,并且之后不再对于map4的进入不再采取updateCube的检测(也不能够上去了)
     }
 }
+void MovableObject::updateTree(float newX, float newY, std::vector<std::vector<Tile>>& mapData, float tileWidth, float tileHeight){
+    int left = static_cast<int>(std::floor(newX / tileWidth));
+    int right = static_cast<int>(std::ceil((newX + sprite.getGlobalBounds().width) / tileWidth)) - 1;
+    int top = static_cast<int>(std::floor(newY / tileHeight));
+    int bottom = static_cast<int>(std::ceil((newY + sprite.getGlobalBounds().height) / tileHeight)) - 1;
+    int mid=static_cast<int>(std::ceil((newX + 0.5*sprite.getGlobalBounds().width) / tileWidth)) - 1;
+    // 确保索引在范围内
+    if (left < 0 || right >= static_cast<int>(mapData[0].size()) || top < 0 || bottom >= static_cast<int>(mapData.size())) {
+        std::cerr << "updateCube: Tile indices out of bounds." << std::endl;
+        return;
+    }
 
+    auto it = rightTree.find({bottom, mid});
 
-void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes){
+    // 检查左下方块
+    const Tile* tileBottomLeft = getTileSafe(mid, bottom, mapData);
+    if(tileBottomLeft && tileBottomLeft->tileType == 12 && !tileBottomLeft->rightPlace){
+        mapData[bottom][left].rightPlace = true; // 标记为已踩踏
+        if(it != rightTree.end()){
+            if(!rightTree[{bottom, mid}]){
+                AudioManager::getInstance().playSoundEffect(SoundChannel::System, "failToBuy", SoundPriority::MEDIUM);
+                // resetToStartPosition();
+                for(auto&x:rightTree){
+                    int y = x.first.first;
+                    int x_idx = x.first.second;
+                    const Tile* tile = getTileSafe(x_idx, y, mapData);
+                    if(tile){
+                        mapData[y][x_idx].rightPlace = false;
+                    }
+                }
+            }
+        }
+    }
+
+    // 检查所有相关方块是否已踩踏
+    bool flag = true;
+    for(auto&x:rightTree){
+        if(x.second){
+            int y = x.first.first;
+            int x_idx = x.first.second;
+            const Tile* tile = getTileSafe(x_idx, y, mapData);
+            if(tile && tile->rightPlace){
+                continue;
+            } else {
+                flag = false;
+                break;
+            }
+        }
+    }
+    if(flag && !mapNineWin){
+        mapNineWin = true;
+        AudioManager::getInstance().playSoundEffect(SoundChannel::System, "gameVictory", SoundPriority::MEDIUM);
+        //changePosition();
+        // 胜利检测,直接把角色的位置换到上面,并且之后不再对于map4的进入不再采取updateCube的检测(也不能够上去了)
+    }
+}
+
+void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, float tileWidth, float tileHeight,vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes ,vector<unique_ptr<RandomWalkingSlime>>&rwslimes,vector<unique_ptr<SpySlime>>&spyslimes){
         // 使用 deltaTime 来平滑速度
         //1:向右检测,应该检测右上和右下
         //2:向左检测,应该检测左上和左下
@@ -505,7 +562,7 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
         //4;向下检测,应该检测左下和右下
         AudioManager& audio = AudioManager::getInstance();
         bool isIdle=true;
-        triggerReusableItems();
+        triggerReusableItems(slimes,iceslimes,rwslimes,spyslimes);
         if(gamePaused){
             return;
         }
@@ -597,14 +654,25 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
     if (c_idx == 3 && !mapFourWin) {
         updateCube(position.x, position.y + originalValues.speed * deltaTime, mapData, tileWidth, tileHeight);
     }
+    if(c_idx==8&&!mapNineWin){
+        updateTree(position.x, position.y + originalValues.speed * deltaTime, mapData, tileWidth, tileHeight);
+
+    }
     updateStandingTime(position.x, position.y + originalValues.speed * deltaTime, mapData, tileWidth, tileHeight);
 
     // 掉落检测
     if (!checkCollision(position.x, position.y + originalValues.speed * deltaTime, mapData, tileWidth, tileHeight, 4)) {
-        if (!isOnLadder) {
-            position.y += (originalValues.speed / 2) * deltaTime;
+        if(!isJumping&&!isOnLadder){
+            falldownFreely=true;
+        }
+        if (!isOnLadder&&!falldownFreely) {
+            position.y += (originalValues.speed / 10) * deltaTime;
             isJumping = true;
         }
+    }else{
+        falldownFreely=false;
+        isJumping=false;
+        verticalSpeed=0;
     }
         if (Keyboard::isKeyPressed(Keyboard::J)) {
             audio.playSoundEffect(SoundChannel::Player,"attack",SoundPriority::MEDIUM);
@@ -662,6 +730,9 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
                 if(isOnMucous){
                     position.x-=0.3*speed*deltaTime;
                 }
+                if(isJumping||falldownFreely){
+                    position.x-=0.3*speed*deltaTime;
+                }
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
@@ -679,6 +750,9 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             if (!checkCollision(position.x - speed * deltaTime, position.y, mapData, tileWidth, tileHeight,2)) {
                 position.x -= speed * deltaTime;//向左移动
                 if(isOnMucous){
+                    position.x+=0.3*speed*deltaTime;
+                }
+                if(isJumping||falldownFreely){
                     position.x+=0.3*speed*deltaTime;
                 }
             }
@@ -737,11 +811,11 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
         if (isInWindLR) {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
                 isIdle=false;
-                position.x += (speed * 1.2f) * deltaTime;
+                position.x += (speed * 0.6f) * deltaTime;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) {
                 isIdle=false;
-                position.x -= (speed * 1.2f) * deltaTime;
+                position.x -= (speed * 0.6f) * deltaTime;
             }
         }
         // 梯子效果
@@ -756,8 +830,10 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
                     currentFrame=0;
                     isAnimating=true;
                     currentAction="Ladder";
+                }if(!checkCollision(position.x, position.y - (speed/2) * deltaTime, mapData, tileWidth, tileHeight,3)){
+                    position.y -= 0.45*speed * deltaTime;
                 }
-                position.y -= 0.8*speed * deltaTime;
+                
                 flag=false;
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
@@ -767,7 +843,9 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
                     isAnimating=true;
                     currentAction="Ladder";
                 }
-                position.y += 0.8*speed * deltaTime;
+                if(!checkCollision(position.x, position.y + (speed/2) * deltaTime, mapData, tileWidth, tileHeight,4)){
+                    position.y += 0.45*speed * deltaTime;
+                }
                 flag=false;
             }
             if(flag){
@@ -775,6 +853,7 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && !isJumping) {
+            if(!falldownFreely){
             audio.playSoundEffect(SoundChannel::Player,"jump",SoundPriority::HIGH);
 
             isIdle=false;
@@ -783,6 +862,15 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             if(isOnMucous){
                 verticalSpeed*=0.7f;
             }
+            }
+            else if(isOnLadder){
+            audio.playSoundEffect(SoundChannel::Player,"jump",SoundPriority::HIGH);
+
+            isIdle=false;
+            isJumping = true;
+            verticalSpeed = -0.6*jumpHeight;//跳跃时给予一个负的初速度
+            }
+            
         }
         if(isJumping){
             isIdle=false;
@@ -796,27 +884,48 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
             }
             if(!checkCollision(position.x, position.y - (speed/2) * deltaTime, mapData, tileWidth, tileHeight,3)&&verticalSpeed<0){
                 if(isInWindUD){
-                    position.y+=verticalSpeed*deltaTime;
+                    position.y+=0.6*verticalSpeed*deltaTime;
                 }
                 position.y+=verticalSpeed*deltaTime;
-                verticalSpeed+=gravity*deltaTime;
+                verticalSpeed+=1.6*gravity*deltaTime;
             }//上升
             if(checkCollision(position.x, position.y - (speed/2) * deltaTime, mapData, tileWidth, tileHeight,3)){
                 verticalSpeed=0;
             }//停止上升
             if(verticalSpeed>=0){
-                if(!checkCollision(position.x, position.y + (speed/2) * deltaTime, mapData, tileWidth, tileHeight,4)){
+                if(!checkCollision(position.x, position.y + ((speed/2)+0.2*verticalSpeed) * deltaTime, mapData, tileWidth, tileHeight,4)){
+                    //上下风场效果
+                    
+                    position.y+=verticalSpeed*deltaTime;
+                    verticalSpeed+=2*gravity*deltaTime;
+                    if(isInWindUD){
+                        position.y-=0.2*verticalSpeed*deltaTime;
+                    }
+                }
+            }//降落
+        }
+        if(falldownFreely&&!isJumping){
+            currentAction="jump";
+            if(!checkJumpAndMove){
+                currentFrame=0;
+            }
+            if(checkJumpAndMove){
+                checkJumpAndMove=false;
+            }
+            if(!checkCollision(position.x, position.y + (speed/2) * deltaTime, mapData, tileWidth, tileHeight,4)){
+                    
+                    position.y+=verticalSpeed*deltaTime;
+                    verticalSpeed+=gravity*deltaTime;
                     //上下风场效果
                     if(isInWindUD){
                         position.y-=0.2*verticalSpeed*deltaTime;
                     }
-                    position.y+=verticalSpeed*deltaTime;
-                    verticalSpeed+=gravity*deltaTime;
-                }
-            }//降落
+            }
         }
         if(checkCollision(position.x, position.y+0.8*speed*deltaTime, mapData, tileWidth, tileHeight,4)){
             isJumping=false;
+            falldownFreely=false;
+            
             // isAnimating=false;
         }//停止降落
         if(!isJumping&&currentAction=="jump"){
@@ -837,7 +946,7 @@ void MovableObject::update(float deltaTime,  vector<vector<Tile>>& mapData, floa
         }
         if(!isAnimating){
 
-            currentFrame=0;
+            //currentFrame=0;
             currentAction="idle";
         }
         updateAnimation(deltaTime);
@@ -1254,7 +1363,7 @@ void MovableObject::checkInvisibilityCooldowm(float deltaTime){
         }
     }
 }
-void MovableObject::triggerReusableItems() {
+void MovableObject::triggerReusableItems(vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes,vector<unique_ptr<RandomWalkingSlime>>&rwslimes,vector<unique_ptr<SpySlime>>&spyslimes) {
     auto currentTime = std::chrono::steady_clock::now();
     // 计算上次触发物品效果和当前时间的时间差
     std::chrono::duration<float> timeElapsed = currentTime - lastUseTime;
@@ -1277,7 +1386,7 @@ void MovableObject::triggerReusableItems() {
                     std::cout << "No more " << items[reusableItem.second].id << " to use." << std::endl;
                     continue;  // 如果竖琴数量为零，不再触发效果
                 }
-                applyItemEffect(reusableItem.second);  // 应用物品效果
+                applyItemEffect(reusableItem.second,slimes,iceslimes,rwslimes,spyslimes);  // 应用物品效果
                 items[reusableItem.second].use();  // 使用物品（减少数量）
                // reusableItem.second.quantity-=1;
             }
@@ -1288,17 +1397,35 @@ void MovableObject::triggerReusableItems() {
         }
     }
 }
-void MovableObject::applyItemEffect(int ID){
+void MovableObject::applyItemEffect(int ID,vector<unique_ptr<Slime>>&slimes,vector<unique_ptr<MissileSlime>>&iceslimes,vector<unique_ptr<RandomWalkingSlime>>&rwslimes,vector<unique_ptr<SpySlime>>&spyslimes){
     if(items[ID].id=="31"){
         if(Health<HealthCap){
+            audio.playSoundEffect(SoundChannel::System,"bloodUp",SoundPriority::HIGH);
             this->changeHealth(items[ID].extraBlood);
         }else{
             cout<<"FULL!"<<endl;
         }
     }else if(items[ID].id=="41"){
-        // 暂时不处理
+        audio.playSoundEffect(SoundChannel::System,"trumpette",SoundPriority::HIGH);
+        for(auto&slime:rwslimes){
+            slime->changeAlive();
+        }
+        // 小号果,吹了之后可以驱赶随机游走史莱姆
     }else if(items[ID].id=="42"){
-        // 暂时不处理
+        audio.playSoundEffect(SoundChannel::System,"harp",SoundPriority::HIGH);
+        // 竖琴,弹了之后可以定住两秒
+        for (auto& slime : slimes) {
+            if(!slime)continue;
+            slime->changeSleep();
+        }
+        for (auto& slime : iceslimes) {
+            if(!slime)continue;
+            slime->changeSleep();
+        }
+        for (auto& slime : spyslimes) {
+            if(!slime)continue;
+            slime->changeSleep();
+        }
     }
 }
 void MovableObject::updateAnimation(float deltaTime){
@@ -1373,13 +1500,13 @@ vector<vector<Tile>> load_map_data(const json&map_data,int width,int height){
         for(int x=0;x<40;x++){
             
             mapData[y][x].tileType=data[index++];
-            mapData[y][x].isCollidable=(mapData[y][x].tileType==1||mapData[y][x].tileType==2||mapData[y][x].tileType==4||mapData[y][x].tileType==5||mapData[y][x].tileType==12);//1245可碰撞
-            mapData[y][x].isBrokenable=(mapData[y][x].tileType==4);//4是碎墙,是否能够站立由碰撞检测决定
+            mapData[y][x].isCollidable=(mapData[y][x].tileType==1||mapData[y][x].tileType==2||mapData[y][x].tileType==4||mapData[y][x].tileType==5||mapData[y][x].tileType==12||mapData[y][x].tileType==83||mapData[y][x].tileType==11);//1245可碰撞
+            mapData[y][x].isBrokenable=(mapData[y][x].tileType==4||mapData[y][x].tileType==83);//4是碎墙,是否能够站立由碰撞检测决定
             mapData[y][x].isIce=(mapData[y][x].tileType==2);//2是冰
-            mapData[y][x].isWater=(mapData[y][x].tileType==3);//3是水
-            mapData[y][x].isMucous=(mapData[y][x].tileType==5);//5是粘液
-            mapData[y][x].isLadder=(mapData[y][x].tileType==6);//6是梯子
-            mapData[y][x].isWindLR=(mapData[y][x].tileType==7);//7是上下风场
+            mapData[y][x].isWater=(mapData[y][x].tileType==3||mapData[y][x].tileType==82||mapData[y][x].tileType==13);//3是水
+            mapData[y][x].isMucous=(mapData[y][x].tileType==5||mapData[y][x].tileType==15);//5是粘液
+            mapData[y][x].isLadder=(mapData[y][x].tileType==6||mapData[y][x].tileType==16);//6是梯子
+            mapData[y][x].isWindLR=(mapData[y][x].tileType==7||mapData[y][x].tileType==81);//7是上下风场
             mapData[y][x].isWindUD=(mapData[y][x].tileType==8);//8是左右风场
             mapData[y][x].intoExit=(mapData[y][x].tileType==71);//map9->exit
             mapData[y][x].m1t2=(mapData[y][x].tileType==51);//1->2
@@ -1404,7 +1531,7 @@ vector<vector<Tile>> load_map_data(const json&map_data,int width,int height){
             mapData[y][x].m9t7=(mapData[y][x].tileType==70);//1->2
             mapData[y][x].musicCube=(mapData[y][x].tileType==12);
             mapData[y][x].rightPlace=(mapData[y][x].tileType!=12);//等于12->一开始为假
-
+            mapData[y][x].tree=(mapData[y][x].tileType==83);//编号83为树,可以踩塌
             mapData[y][x].isChange=(mapData[y][x].tileType==51||mapData[y][x].tileType==52||mapData[y][x].tileType==53||mapData[y][x].tileType==54
             ||mapData[y][x].tileType==55||mapData[y][x].tileType==56||mapData[y][x].tileType==57||mapData[y][x].tileType==58
             ||mapData[y][x].tileType==59||mapData[y][x].tileType==60||mapData[y][x].tileType==61||mapData[y][x].tileType==62

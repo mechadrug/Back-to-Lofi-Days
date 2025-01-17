@@ -5,7 +5,12 @@
 #include <SFML/System/Clock.hpp>
 #include "Player.h"
 #include "Map.h"
+#include "MapManager.h"
+#include <cmath>
+#include <list>
+#include <algorithm>
 #include <random>
+
 
 class Slime {
 protected:
@@ -16,6 +21,8 @@ protected:
     float attackCooldown;            // 攻击冷却时间
     int attackDamage;              // 攻击伤害
     int detectionRange;              // 检测范围（每方向一格）
+    bool sleep;
+    Clock sleepClock;
 
 public:
     Slime(float x, float y, const sf::Texture& texture, int health = 8, 
@@ -28,6 +35,9 @@ public:
 
     bool isAlive() const;
     sf::Vector2f getPosition() const;
+    void changeSleep(){
+        sleep=true;
+    }
 };
 
 class RandomWalkingSlime : public Slime {
@@ -50,6 +60,9 @@ public:
 
     void update(MovableObject& target) override;  // 重写update方法
     void moveTowardsTarget(float deltaTime);       // 平滑移动
+    void changeAlive(){
+        isDead=true;
+    }
 };
 
 
@@ -95,5 +108,75 @@ public:
 
     void update(MovableObject& target) override;
     void render(sf::RenderWindow& window) override;
+};
+
+class SpySlime : public Slime {
+private:
+    vector<vector<Tile>>map;
+public:
+    SpySlime(float x, float y, const Texture& texture,const vector<vector<Tile>>map,float speed = 100.f, bool isDead = false, int health = 8, int attackDamage = 6, float attackCooldown = 1.f,
+        int detectionRange = 2, float Cooldown = 2.f) : Slime(x, y, texture, health, attackDamage, attackCooldown, detectionRange){}
+
+    void update(MovableObject& target) {
+        if (isDead) return;
+        if(gamePaused) return;
+        if(!sleep){
+            sleepClock.restart();
+        }
+        if(sleep){
+            if(sleepClock.getElapsedTime().asSeconds()>=2*attackCooldown){
+                sleep=false;
+                sleepClock.restart();
+            }
+        
+            return;
+        }
+        sf::Vector2f slimePosition = movable.getPosition();
+        sf::Vector2f targetPosition = target.getPosition();
+
+        // 计算是否可以攻击
+        if (movable.getGlobalBounds().intersects(target.getGlobalBounds())) {
+            if (attackClock.getElapsedTime().asSeconds() >= attackCooldown) {
+                attack(target);
+                attackClock.restart();
+                isDead = true;
+            }
+        } else {
+            // 如果不在攻击范围，开始逼近目标
+            moveTo(targetPosition);
+        }
+    }
+
+    void moveTo(sf::Vector2f targetPosition) {
+        sf::Vector2f slimePosition = movable.getPosition();
+        float d=16*globalScaleX;
+        // 计算X轴和Y轴方向
+        float dx = 0, dy = 0;
+
+        // 判断X方向
+        if (slimePosition.x < targetPosition.x) {
+            dx = 1;  // 向右移动
+        } else if (slimePosition.x > targetPosition.x) {
+            dx = -1;  // 向左移动
+        }
+
+        // 判断Y方向
+        if (slimePosition.y < targetPosition.y) {
+            dy = 1;  // 向下移动
+        } else if (slimePosition.y > targetPosition.y) {
+            dy = -1;  // 向上移动
+        }
+        Vector2f movement(0.f, 0.f);
+        
+
+        float moveSpeed=35.f;
+        movement.x=dx * moveSpeed * DELTATIME;
+        movement.y=dy * moveSpeed * DELTATIME;
+        // 移动
+        if (dx != 0 || dy != 0) {
+            // 使用相对方向和速度更新位置
+            movable.setPosition(movement);
+        }
+    }
 };
 #endif
