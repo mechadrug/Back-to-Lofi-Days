@@ -1,0 +1,40 @@
+{
+    "MovableObject": {
+        "Attack": 2,
+        "Health": 10,
+        "HealthCap": 10,
+        "atkRange": 2,
+        "attackCooldown": 1.0,
+        "gravity": 580.0,
+        "inertiaSpeed": 0.0,
+        "intoWind": false,
+        "invisibilityCooldown": 5.0,
+        "invisibilityDuration": 2.0,
+        "isDead": false,
+        "isDodging": false,
+        "isFlashing": false,
+        "isInvisible": false,
+        "isJumping": false,
+        "jumpHeight": 533.0,
+        "lastAttackTime": 582270766,
+        "money": 1000,
+        "originalValues": {
+            "atkRange": 2,
+            "attack": 2,
+            "attackCooldown": 1.0,
+            "health": 10,
+            "healthCap": 10,
+            "initprob": 0.0,
+            "invisiTime": 2.0,
+            "jumpHeight": 533.0,
+            "speed": 350.0
+        },
+        "position": {
+            "x": 57.599998474121094,
+            "y": 59.35874557495117
+        },
+        "probWithoutBeingAttacked": 0.0,
+        "speed": 350.0,
+        "verticalSpeed": 0.0
+    }
+}

@@ -8,6 +8,7 @@
 class Bag {
 private:
     Button bagButton;         // 背包按钮
+    Button quitButton;
     RectangleShape buttonMask; //蒙一层磨砂效果
     sf::RectangleShape bagWindow;  // 背包界面的背景
     bool isBagOpen;               // 背包是否打开
@@ -16,7 +17,6 @@ private:
     Font font;
     wstring currentItemInfo; //物品信息
     vector<BagItemButton> itemButtons; // 背包中的按钮列表
-    //unordered_map<char, Item> equippedItems;  // 存储每种类型的已装备物品 (根据首个字符区分)
 public:
     Bag();
     void loadItems(MovableObject&girl);

@@ -1,9 +1,10 @@
 #include "../include/MapManager.h"
 
-MapManager::MapManager() : currentMapIndex(0) {
+MapManager::MapManager() : currentMapIndex(c_idx) {
     brokenWallSprite.setTexture(brokenWallTexture);
     iceCubeSprite.setTexture(iceCubeTexture);
     treeSprite.setTexture(treeTexture);
+    hideSprite.setTexture(hideStair);
     firstLoadSlime=false;
     firstLoadFlySlime=false;
     firstLoadIceSlime=false;
@@ -23,31 +24,37 @@ void MapManager::loadMapData(const std::string& mapConfigFile) {
         harps.clear();
         trumpets.clear();
         puffs.clear();
+        notes.clear();
+        catte.clear();
         for (int y = 0; y < 30; ++y) {
             for (int x = 0; x < 40; ++x) {
                 if (mapData[y][x].tileType == 20) {  // 假设 20 是金币
                     coins.emplace_back(x * 16.f*sx, y * 16.f*sy, coin);  // 创建金币并加入列表
                 }
-            }
-        }
-        for (int y = 0; y < 30; ++y) {
-            for (int x = 0; x < 40; ++x) {
-                if (mapData[y][x].tileType == 21) {  // 假设 20 是金币
+                if (mapData[y][x].tileType == 21) {
                     harps.emplace_back(x * 16.f*sx, y * 16.f*sy, harp);  // 创建harps并加入列表
                 }
-            }
-        }
-        for (int y = 0; y < 30; ++y) {
-            for (int x = 0; x < 40; ++x) {
                 if (mapData[y][x].tileType == 22) {  // 假设 20 是金币
                     trumpets.emplace_back(x * 16.f*sx, y * 16.f*sy, trumpet);  // 创建trumpet并加入列表
                 }
-            }
-        }
-        for (int y = 0; y < 30; ++y) {
-            for (int x = 0; x < 40; ++x) {
                 if (mapData[y][x].tileType == 23) {  // 假设 20 是金币
-                    puffs.emplace_back(x * 16.f*sx, y * 16.f*sy, trumpet);  // 创建puff并加入列表
+                    puffs.emplace_back(x * 16.f*sx, y * 16.f*sy, puff);  // 创建puff并加入列表
+                }
+                if (mapData[y][x].tileType == 40&&!noteOwnStatus[14]) {
+                    notes.emplace_back(x * 16.f*sx, y * 16.f*sy, Re,2);  
+                }if (mapData[y][x].tileType == 41&&!noteOwnStatus[15]) {  
+                    notes.emplace_back(x * 16.f*sx, y * 16.f*sy, Mi,3);  
+                }if (mapData[y][x].tileType == 42&&!noteOwnStatus[16]) { 
+                    notes.emplace_back(x * 16.f*sx, y * 16.f*sy, Fa,4);  
+                }if (mapData[y][x].tileType == 43&&!noteOwnStatus[17]) { 
+                    notes.emplace_back(x * 16.f*sx, y * 16.f*sy, Sol,5);  
+                }if (mapData[y][x].tileType == 44&&!noteOwnStatus[18]) { 
+                    notes.emplace_back(x * 16.f*sx, y * 16.f*sy, La,6);
+                }if (mapData[y][x].tileType == 45&&!noteOwnStatus[19]) { 
+                    notes.emplace_back(x * 16.f*sx, y * 16.f*sy, Ti,7);
+                }
+                if(mapData[y][x].tileType==100){
+                    catte.emplace_back(x * 16.f*sx, y * 16.f*sy, cat);
                 }
             }
         }
@@ -113,9 +120,11 @@ void MapManager::switchMap(int mapIndex, MovableObject& girl,float x,float y) {
     // 重新加载地图数据
     if(c_idx==3){
         audio.playSpecificMusic("birthday",true);
+    }else if(c_idx==7){
+        audio.playSoundEffect(SoundChannel::Monster,"push",SoundPriority::HIGH);
+        audio.playRandomMusic();
     }else{
         audio.playRandomMusic();
-
     }
     loadMapData("../configs/finalMap" + std::to_string(mapIndex) + ".json");
     girl.changePositionBetweenMap(x,y);
@@ -131,30 +140,18 @@ void MapManager::switchMap(int mapIndex, MovableObject& girl,float x,float y) {
                 slimes.emplace_back(make_unique<Slime>(x1*16.f*sx,y1*16.f*sy,slime));
 
             }
-        }
-    }
-    for(int y1=0;y1<30;y1++){
-        for(int x1=0;x1<40;x1++){
             if(mapData[y1][x1].tileType==92){
                 RWslimes.emplace_back(make_unique<RandomWalkingSlime>(x1*16.f*sx,y1*16.f*sy,RWslime));
 
             }
+            if(mapData[y1][x1].tileType==93){
+                    iceSlimes.emplace_back(make_unique<MissileSlime>(x1*16.f*sx,y1*16.f*sy,iceSlime,leftBoom,rightBoom));
+            }
+            if(mapData[y1][x1].tileType==94){
+                    spySlimes.emplace_back(make_unique<SpySlime>(x1*16.f*sx,y1*16.f*sy,Spyslime,mapData));
+            }
         }
     }
-    for(int y1=0;y1<30;y1++){
-            for(int x1=0;x1<40;x1++){
-                if(mapData[y1][x1].tileType==93){
-                    iceSlimes.emplace_back(make_unique<MissileSlime>(x1*16.f*sx,y1*16.f*sy,iceSlime,leftBoom,rightBoom));
-                }
-            }
-        }
-    for(int y1=0;y1<30;y1++){
-            for(int x1=0;x1<40;x1++){
-                if(mapData[y1][x1].tileType==94){
-                    spySlimes.emplace_back(make_unique<SpySlime>(x1*16.f*sx,y1*16.f*sy,Spyslime,mapData));
-                }
-            }
-        }
 }
 
 void MapManager::renderMap(RenderWindow& window, const std::vector<std::vector<Tile>>& mapData) {
@@ -174,6 +171,12 @@ void MapManager::renderMap(RenderWindow& window, const std::vector<std::vector<T
     for (auto& it : puffs) {
             it.render(window);
         }
+    for(auto&it:notes){
+        it.render(window);
+    }
+    for(auto&it:catte){
+        it.render(window);
+    }
     // 渲染碎墙,树元素
     for (int y = 0; y < 30; y++) {
         for (int x = 0; x < 40; x++) {
@@ -190,6 +193,13 @@ void MapManager::renderMap(RenderWindow& window, const std::vector<std::vector<T
                 treeSprite.setPosition(tileX, tileY);
                 treeSprite.setScale(backgrounds[currentMapIndex].returnScaleX(), backgrounds[currentMapIndex].returnScaleY());
                 window.draw(treeSprite);
+            }
+            if(mapData[y][x].tileType==84&&map4win){
+                float tileX = x * 16.0f * backgrounds[currentMapIndex].returnScaleX();
+                float tileY = y * 16.0f * backgrounds[currentMapIndex].returnScaleY();
+                hideSprite.setPosition(tileX, tileY);
+                hideSprite.setScale(backgrounds[currentMapIndex].returnScaleX(), backgrounds[currentMapIndex].returnScaleY());
+                window.draw(hideSprite);
             }
         }
     }
@@ -265,6 +275,12 @@ void MapManager::updateCoin(MovableObject&girl){
         it.checkCollision(girl);
     }
     for(auto&it:puffs){
+        it.checkCollision(girl);
+    }
+    for(auto&it:notes){
+        it.checkCollision(girl);
+    }
+    for(auto&it:catte){
         it.checkCollision(girl);
     }
 }

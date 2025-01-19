@@ -4,6 +4,7 @@ Shop::Shop() : isShopOpen(false), shopButton(-50, 400, 50, 50, "../resources/ima
     // 设置商店界面的背景（简单的矩形，实际上你可以加载更复杂的界面）
     fx=window_sz.x/2-300.f;
     fy=window_sz.y/2-225.f;
+    quitButton=Button(fx+568.f,fy,32,32,"../resources/images/quit.png");
     shopWindow.setSize(sf::Vector2f(600, 450));
     shopWindow.setFillColor(sf::Color(0, 0, 0, 200));  // 半透明黑色背景
     shopWindow.setPosition(fx, fy);  // 商店界面的初始位置
@@ -20,23 +21,30 @@ void Shop::loadItems(){
     // Texture&texture2=TexturePool::getTexture("../resources/images/shop.png");
     // line1
     itemButtons.push_back(ItemButton(fx,fy,50,50,"../resources/images/Item/moonNecklace.png",false,1,5,0));
-    itemButtons.push_back(ItemButton(fx+60,fy,50,50,"../resources/images/Item/BubbleGumRing.png",false,1,3,1));
-    itemButtons.push_back(ItemButton(fx+120,fy,50,50,"../resources/images/Item/meoMeoSunGlasses.png",false,1,3,2));
-    itemButtons.push_back(ItemButton(fx+180,fy,50,50,"../resources/images/Item/naiLoong.png",false,1,3,3));
-    itemButtons.push_back(ItemButton(fx+240,fy,50,50,"../resources/images/Item/tromboneOrna.png",false,1,3,4));
+    itemButtons.push_back(ItemButton(fx+60,fy,50,50,"../resources/images/Item/BubbleGumRing.png",false,1,4,1));
+    itemButtons.push_back(ItemButton(fx+120,fy,50,50,"../resources/images/Item/meoMeoSunGlasses.png",false,1,17,2));
+    itemButtons.push_back(ItemButton(fx+180,fy,50,50,"../resources/images/Item/naiLoong.png",false,1,20,3));
+    itemButtons.push_back(ItemButton(fx+240,fy,50,50,"../resources/images/Item/tromboneOrna.png",false,1,25,4));
     // line2
-    itemButtons.push_back(ItemButton(fx,fy+60,50,50,"../resources/images/Item/baseballCap.png",false,1,3,5));
-    itemButtons.push_back(ItemButton(fx+60,fy+60,50,50,"../resources/images/Item/darkCloak.png",false,1,3,6));
+    itemButtons.push_back(ItemButton(fx,fy+60,50,50,"../resources/images/Item/baseballCap.png",false,1,5,5));
+    itemButtons.push_back(ItemButton(fx+60,fy+60,50,50,"../resources/images/Item/darkCloak.png",false,1,5,6));
     // line3
-    itemButtons.push_back(ItemButton(fx,fy+120,50,50,"../resources/images/Item/flossScarf.png",false,1,3,7));
-    itemButtons.push_back(ItemButton(fx+60,fy+120,50,50,"../resources/images/Item/springSprouw.png",false,1,3,8));
-    itemButtons.push_back(ItemButton(fx+120,fy+120,50,50,"../resources/images/Item/coconut.png",false,1,3,9));
+    itemButtons.push_back(ItemButton(fx,fy+120,50,50,"../resources/images/Item/flossScarf.png",false,1,7,7));
+    itemButtons.push_back(ItemButton(fx+60,fy+120,50,50,"../resources/images/Item/springSprouw.png",false,1,9,8));
+    itemButtons.push_back(ItemButton(fx+120,fy+120,50,50,"../resources/images/Item/coconut.png",false,1,8,9));
     // line4
-    itemButtons.push_back(ItemButton(fx,fy+180,50,50,"../resources/images/Item/puff.png",false,5,3,10));
+    itemButtons.push_back(ItemButton(fx,fy+180,50,50,"../resources/images/Item/puff.png",false,8,1,10));
     // line5
-    itemButtons.push_back(ItemButton(fx,fy+240,50,50,"../resources/images/Item/trumpette.png",false,5,3,11));
-    itemButtons.push_back(ItemButton(fx+60,fy+240,50,50,"../resources/images/Item/harp.png",false,5,3,12));
-    itemButtons.push_back(ItemButton(fx+120,fy+240,50,50,"../resources/images/Item/noteDo.png",false,1,3,13));
+    itemButtons.push_back(ItemButton(fx,fy+240,50,50,"../resources/images/Item/trumpette.png",false,3,10,11));
+    itemButtons.push_back(ItemButton(fx+60,fy+240,50,50,"../resources/images/Item/harp.png",false,3,10,12));
+    itemButtons.push_back(ItemButton(fx+120,fy+240,50,50,"../resources/images/Item/noteDo.png",false,1,0,13));
+    itemButtons.push_back(ItemButton(fx+180,fy+240,50,50,"../resources/images/Item/noteRe.png",false,1,1000,14));
+    itemButtons.push_back(ItemButton(fx+240,fy+240,50,50,"../resources/images/Item/noteMi.png",false,1,1000,15));
+    itemButtons.push_back(ItemButton(fx+300,fy+240,50,50,"../resources/images/Item/noteFa.png",false,1,1000,16));
+    itemButtons.push_back(ItemButton(fx+360,fy+240,50,50,"../resources/images/Item/noteSol.png",false,1,1000,17));
+    itemButtons.push_back(ItemButton(fx+420,fy+240,50,50,"../resources/images/Item/noteLa.png",false,1,1000,18));
+    itemButtons.push_back(ItemButton(fx+480,fy+240,50,50,"../resources/images/Item/noteTi.png",false,1,1000,19));
+
 
 }
 
@@ -58,13 +66,14 @@ void Shop::render(sf::RenderWindow& window) {
     // 如果商店界面打开，绘制商店界面
     if (isShopOpen) {
         window.draw(shopWindow);
+        quitButton.draw(window);
         for(auto& item:itemButtons){
             item.draw(window);
         }
         if(!currentItemInfo.empty()){
             Text infortext;
             infortext.setFont(font);
-            infortext.setString(stringToWStringhh(currentItemInfo));
+            infortext.setString(currentItemInfo);
             infortext.setCharacterSize(24);
             infortext.setFillColor(Color::White);
             infortext.setPosition(fx,fy+370.f);
@@ -95,13 +104,22 @@ void Shop::handleClick(const sf::Vector2i& mousePos,MovableObject& girl) {
         }
     }
     }
-    
+    if(quitButton.isPressed(mousePos)){
+        if(isShopOpen){
+            closeShop();
+            currentItemInfo.clear();
+            usingSystem=0;
+        }
+        clickClock.restart();
+        return;
+    }
     // 如果鼠标点击的位置在商店按钮范围内
     if (shopButton.isPressed(mousePos)) {
         audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
 
         if (isShopOpen) {
             closeShop();  // 关闭商店
+            currentItemInfo.clear();
             usingSystem=0;
         } else {
             openShop();  // 打开商店
@@ -117,7 +135,7 @@ void Shop::showItemInfo(const sf::Vector2i& mousePos, sf::RenderWindow& window) 
         if (itemButton.isPressed(mousePos)) {
             audio.playSoundEffect(SoundChannel::System,"select",SoundPriority::MEDIUM);
 
-            currentItemInfo = itemButton.maxNum()+" "+itemButton.cost();  // 获取物品的详细信息
+            currentItemInfo = stringToWStringhh(itemButton.maxNum()+" "+itemButton.cost())+"\n"+itemButton.theName()+" "+itemButton.function();  // 获取物品的详细信息
             return;
         }
     }

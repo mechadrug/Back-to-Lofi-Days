@@ -14,6 +14,7 @@ class MenuState: public GameState{
     Game *game;
     Button startButton;//开始按钮
     Button exitButton;//退出按钮
+    Button oldgameButton;
     sf::Font font;
     Map background;
     public:

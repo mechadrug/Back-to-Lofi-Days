@@ -25,7 +25,8 @@ private:
     Sprite iceCubeSprite;
     Texture& treeTexture = TexturePool::getTexture("../resources/images/tree.png");
     Sprite treeSprite;
-
+    Texture&hideStair=TexturePool::getTexture("../resources/images/snowstair.png");
+    Sprite hideSprite;
     bool firstLoadSlime;
     bool firstLoadFlySlime;
     bool firstLoadIceSlime;
@@ -51,6 +52,18 @@ private:
     vector<unique_ptr<MissileSlime>> iceSlimes;
     vector<unique_ptr<SpySlime>> spySlimes;
 
+    Texture&Re=TexturePool::getTexture("../resources/images/Re.png");
+    Texture&Mi=TexturePool::getTexture("../resources/images/Mi.png");
+    Texture&Fa=TexturePool::getTexture("../resources/images/Fa.png");
+    Texture&Sol=TexturePool::getTexture("../resources/images/Sol.png");
+    Texture&La=TexturePool::getTexture("../resources/images/La.png");
+    Texture&Ti=TexturePool::getTexture("../resources/images/Ti.png");
+    vector<Note>notes;
+
+    Texture&cat=TexturePool::getTexture("../resources/images/cat.png");
+    vector<Cat> catte;
+
+
 
 public:
     MapManager();
@@ -67,7 +80,7 @@ public:
     vector<unique_ptr<SpySlime>>&getspySlimes();
 
     void updateCoin(MovableObject&girl);
-    int returnIdx(){
+    int& returnIdx(){
         return currentMapIndex;
     }
 };

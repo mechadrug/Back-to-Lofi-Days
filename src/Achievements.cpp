@@ -4,6 +4,7 @@ Achievements::Achievements() : isAcOpen(false), acButton(-50, 450, 50, 50, "../r
     // 设置商店界面的背景（简单的矩形，实际上你可以加载更复杂的界面）
     fx=window_sz.x/2-300.f;
     fy=window_sz.y/2-225.f;
+    quitButton=Button(fx+568.f,fy,32,32,"../resources/images/quit.png");
     acWindow.setSize(sf::Vector2f(600, 450));
     acWindow.setFillColor(sf::Color(0, 0, 0, 200));  // 半透明黑色背景
     acWindow.setPosition(fx, fy);  // 商店界面的初始位置
@@ -36,6 +37,7 @@ void Achievements::render(sf::RenderWindow& window) {
     // 如果商店界面打开，绘制商店界面
     if (isAcOpen) {
         window.draw(acWindow);
+        quitButton.draw(window);
         for(auto&showac:showButtons){
             showac.draw(window);
         }
@@ -68,6 +70,14 @@ void Achievements::handleClick(const sf::Vector2i& mousePos) {
     }
     if(isAcOpen){
         showACInfo(mousePos);
+    }
+    if(quitButton.isPressed(mousePos)){
+        if(isAcOpen){
+            closeShop();
+            usingSystem=0;
+        }
+        clickClock.restart();
+        return;
     }
     // 如果鼠标点击的位置在商店按钮范围内
     if (acButton.isPressed(mousePos)) {

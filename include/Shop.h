@@ -4,13 +4,14 @@
 #include <locale>
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "Button.h"  // 引入 Button 类
+#include "Button.h"
 #include "GlobalVar.h"
 #include "Player.h"
 #include "Backpack.h"
 class Shop {
 private:
     Button shopButton;         // 商店按钮
+    Button quitButton;
     RectangleShape buttonMask; //蒙一层磨砂效果
     sf::RectangleShape shopWindow;  // 商店界面的背景
     bool isShopOpen;               // 商店是否打开
@@ -18,7 +19,7 @@ private:
     const float clickCooldown = 1.0f;
     Font font;
     vector<ItemButton> itemButtons; // 物品按钮列表
-    string currentItemInfo; // 物品信息
+    wstring currentItemInfo; // 物品信息
 public:
     Shop();
     void loadItems();

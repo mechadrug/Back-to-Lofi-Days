@@ -55,6 +55,9 @@ struct Item{
             }
         } 
     }
+    int returnQ(){
+        return this->quantity;
+    }
 };
 
 

@@ -1,7 +1,7 @@
 #include "../include/SidebarManager.h"
 
 SidebarManager::SidebarManager() 
-    : isSidebarOpen(false), shopSystem(nullptr), achievementsSystem(nullptr), backpackSystem(nullptr), activeSystem(nullptr),button(0,740,50,50,"../resources/images/openSidebar.png") {
+    : isSidebarOpen(false), shopSystem(nullptr), achievementsSystem(nullptr), backpackSystem(nullptr), activeSystem(nullptr),button(0,740,50,50,"../resources/images/openSidebar.png"),hintButton(0,600,50,50,"../resources/images/hint.png") {
     // 设置侧边栏背景
     sidebar.setSize(sf::Vector2f(50, 300));
     sidebar.setFillColor(sf::Color(0, 0, 0, 150));  // 半透明黑色背景
@@ -9,13 +9,24 @@ SidebarManager::SidebarManager()
     buttonMask.setSize(Vector2f(50.f,50.f));
     buttonMask.setFillColor(Color(0, 0, 0, 200));
     buttonMask.setPosition(0, 740);
+    playerMask.setSize(Vector2f(480.f,50.f));
+    playerMask.setFillColor(Color(0,0,0,200));
+    playerMask.setPosition(0,0);
     button.setColor();
-
+    hintButton.setColor();
+    moneySprite.setPosition(10.f,10.f);
+    moneySprite.setTexture(monesy);
+    healthSprite.setPosition(90.f,10.f);
+    healthSprite.setTexture(health);
+    equipmentSprite.setPosition(170.f,10.f);
+    equipmentSprite.setTexture(equipment);
     // 初始化各个系统
     shopSystem = new Shop();
     achievementsSystem = new Achievements();
     backpackSystem = new Bag();
     rulesSystem = new Rule();
+    hintOpen=false;
+
 }
 
 SidebarManager::~SidebarManager() {
@@ -29,6 +40,46 @@ void SidebarManager::render(sf::RenderWindow& window,MovableObject &girl) {
     window.draw(buttonMask);
     button.draw(window);
     window.draw(sidebar);
+    window.draw(playerMask);
+    window.draw(moneySprite);
+    window.draw(healthSprite);
+    window.draw(equipmentSprite);
+    Text info1,info2,info3;
+    info1.setFont(fonte);
+    info2.setFont(fonte);
+    info3.setFont(fonte);
+
+    wstring money=to_wstring(girl.getMoney());
+    info1.setString(money);
+    info1.setCharacterSize(20);
+    info1.setFillColor(Color::White);
+    info1.setPosition(45.f,15.f);
+    window.draw(info1);
+    wstring curHealth=to_wstring(girl.getHealth().first)+"/"+to_wstring(girl.getHealth().second);
+    info2.setString(curHealth);
+    info2.setCharacterSize(20);
+    info2.setFillColor(Color::White);
+    info2.setPosition(135.f,15.f);
+    window.draw(info2);
+    wstring iteminfo;
+    for(int i=0;i<=2;i++){
+        char c=to_string(i)[0];
+        if(girl.equippedItems.find(c)!=girl.equippedItems.end()){
+            int curItem=girl.equippedItems[c];
+            wstring s=items[curItem].name+" ";
+            iteminfo+=s;
+        }
+    }
+    if(!girl.reusableItems.empty()){
+        auto it=girl.reusableItems.begin();
+        wstring s=items[(it)->second].name;
+        iteminfo+=s;
+    }
+    info3.setString(iteminfo);
+    info3.setCharacterSize(20);
+    info3.setFillColor(Color::White);
+    info3.setPosition(205.f,15.f);
+    window.draw(info3);
     if(usingSystem==0){
         shopSystem->update(window,girl);
         shopSystem->render(window);
@@ -38,6 +89,34 @@ void SidebarManager::render(sf::RenderWindow& window,MovableObject &girl) {
         backpackSystem->render(window,girl);
         rulesSystem->update(window,girl);
         rulesSystem->render(window);
+        hintButton.draw(window);
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+            if(hintClock.getElapsedTime().asSeconds()<clickCooldown){
+                return;
+            }
+            if(hintOpen){
+                hintOpen=!hintOpen;
+                hintClock.restart();
+                return;
+            }  
+            if(hintButton.isPressed(sf::Mouse::getPosition(window))){
+                hintMask.setSize(Vector2f(600.f,50.f));
+                hintMask.setFillColor(Color(0,0,0,200));
+                hintMask.setPosition(0.f,740.f);
+                wstring s=hints[c_idx+1];
+                info.setFont(fonte);
+                info.setString(s);
+                info.setCharacterSize(36);
+                info.setPosition(10.f,750.f);
+                hintOpen=!hintOpen;
+                hintClock.restart();
+            }
+        }
+        if(hintOpen){
+            window.draw(hintMask);
+            window.draw(info);
+        }
+        
     }
     else if(usingSystem==1){
         shopSystem->update(window,girl);
@@ -55,49 +134,9 @@ void SidebarManager::render(sf::RenderWindow& window,MovableObject &girl) {
         rulesSystem->update(window,girl);
         rulesSystem->render(window);
     }
-    
-    
-    // if (isSidebarOpen) {
-    //     window.draw(sidebar);  // 渲染侧边栏背景
 
-    //     if (activeSystem != nullptr) {
-    //         // 渲染当前活跃的子系统
-    //         if (activeSystem == shopSystem) {
-    //             shopSystem->render(window);
-    //         } else if (activeSystem == achievementsSystem) {
-    //             achievementsSystem->render(window);
-    //         } else if (activeSystem == backpackSystem) {
-    //             backpackSystem->render(window);
-    //         }
-    //     }
-    // }
 }
 
-void SidebarManager::handleClick(const sf::Vector2i& mousePos,MovableObject &girl) {
-    if (isSidebarOpen && activeSystem != nullptr) {
-        // 处理当前激活的子系统的点击事件
-        if (activeSystem == shopSystem) {
-            shopSystem->handleClick(mousePos,girl);
-        } else if (activeSystem == achievementsSystem) {
-            achievementsSystem->handleClick(mousePos);
-        } else if (activeSystem == backpackSystem) {
-            backpackSystem->handleClick(mousePos);
-        }
-    }
-}
-
-void SidebarManager::update(sf::RenderWindow& window,MovableObject &girl) {
-    if (isSidebarOpen && activeSystem != nullptr) {
-        // 更新当前激活的子系统
-        if (activeSystem == shopSystem) {
-            shopSystem->update(window,girl);
-        } else if (activeSystem == achievementsSystem) {
-            achievementsSystem->update(window);
-        } else if (activeSystem == backpackSystem) {
-            backpackSystem->update(window,girl);
-        }
-    }
-}
 
 void SidebarManager::openSidebar() {
     isSidebarOpen = true;
@@ -108,10 +147,3 @@ void SidebarManager::closeSidebar() {
     activeSystem = nullptr;  // 收起时不显示任何系统
 }
 
-void SidebarManager::setActiveSystem(void* system) {
-    // 如果之前已经有激活的系统，先关闭它
-    if (activeSystem != nullptr) {
-        activeSystem = nullptr;  // 可以在这里添加关闭逻辑，避免切换时同时渲染多个系统
-    }
-    activeSystem = system;
-}

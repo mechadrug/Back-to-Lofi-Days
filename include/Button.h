@@ -24,7 +24,7 @@ public:
     }
     void setPos(float x, float y);
 private:
-    sf::Sprite sprite;          // 用于显示按钮的精灵
+    sf::Sprite sprite;  
 
     float width, height;
     float x, y;
@@ -39,16 +39,16 @@ class ItemButton :public Button{
     // 物品价值
     int itemCost;
     // 物品名称
-    string name;
+    wstring name;
     // 物品特性
-    string feature;
-    // 相关联的物品
-    //shared_ptr<Item> item;
+    wstring feature;
     // index
     int indexOfItems;
     public:
     ItemButton(float x,float y,float width,float height, const string&textureFile,bool canBuy,int maxBuyingNum,int cost,int id):
     Button(x,y,width,height,textureFile),canBuy(canBuy),maxBuyingNum(maxBuyingNum),itemCost(cost),indexOfItems(id){
+        name=items[indexOfItems].name;
+        feature=items[indexOfItems].description;
     }
     bool canWeBuy(int numOfCoins){
         canBuy=(numOfCoins>=itemCost&&maxBuyingNum>0);
@@ -66,6 +66,16 @@ class ItemButton :public Button{
         string output="物品需花费硬币数: "+s;
         return output;
     }
+    wstring theName(){
+        wstring s=L"装备名称: "+name;
+        return s;
+    }
+    // 描述物品的功能
+    wstring function(){
+        wstring s=feature;
+        return s;
+    }
+    
     // 最大购买量-1
     void cutMaxBuyingNum(){
         maxBuyingNum--;
@@ -92,9 +102,11 @@ class BagItemButton:public Button{
     wstring feature;
     // 物品id
     string id;
+    // 物品索引
+    int indexOfItems;
     public:
-    BagItemButton(float x,float y,float width,float height, const string&textureFile,wstring atb,int index,wstring n,wstring f,string id):
-    Button(x,y,width,height,textureFile),atb(atb),index(index),isOn(false),name(n),feature(f),id(id){
+    BagItemButton(float x,float y,float width,float height, const string&textureFile,wstring atb,int index,wstring n,wstring f,string id,int d):
+    Button(x,y,width,height,textureFile),atb(atb),index(index),isOn(false),name(n),feature(f),id(id),indexOfItems(d){
     }
     // 点击对应的图标就能够切换
 
@@ -115,6 +127,10 @@ class BagItemButton:public Button{
     }
     string getItemId()const{
         return id;
+    }
+    wstring num(){
+        wstring s=L"当前道具剩余数量: "+to_wstring(items[indexOfItems].returnQ());
+        return s;
     }
 
 };

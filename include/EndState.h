@@ -11,6 +11,7 @@ class EndState:public GameState{
     float subtitleYPos;//字幕的Y轴位置
     float subtitleSpeed;//字幕的移动速度
     Clock clock;     
+    bool time;
     public:
     EndState(Game* game);
     void handleInput(RenderWindow& window) override;

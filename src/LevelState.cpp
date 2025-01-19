@@ -3,7 +3,7 @@
 #include "../include/Game.h"
 #include "../include/TexturePool.h"
 #include "../include/AudioManager.h"
-
+#include "../include/LoadAndStore.h"
 
 LevelState::LevelState(Game*game): game(game),manager(),shop(){
     if (game == nullptr) {
@@ -12,10 +12,10 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
     manager.loadBackgrounds({"../resources/images/finalMap1.png", "../resources/images/finalMap2.png", "../resources/images/finalMap3.png",
     "../resources/images/finalMap4.png","../resources/images/finalMap5.png","../resources/images/finalMap6.png","../resources/images/finalMap7.png"
     ,"../resources/images/finalMap8.png","../resources/images/finalMap9.png"});
-    
-    manager.loadMapData("../configs/finalMap1.json");
+    manager.loadMapData("../configs/finalMap"+std::to_string(1)+".json");
     Texture&texture= TexturePool::getTexture("../resources/images/girlmove.png");
-
+    const Texture &boomLeft=TexturePool::getTexture("../resources/images/boomLeft.png");
+    const Texture &boomRight=TexturePool::getTexture("../resources/images/boomRight.png");
     float sx=manager.getCurrentBackground().returnScaleX();
     float sy=manager.getCurrentBackground().returnScaleY();
     float gsx=32.f*sx;
@@ -27,13 +27,6 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
     topRight=Vector2f(static_cast<float>(windowSize.x), 0.f);  // 右上角
     bottomLeft=Vector2f(0.f, static_cast<float>(windowSize.y));  // 左下角
     bottomRight=Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));  // 右下角
-    //gamePaused=false;
-
-    panelWidth = 50.f; // 横拉条宽度
-    panelHeight = 0.5*windowSize.y; // 高度等于窗口高度
-    panel.setSize(sf::Vector2f(panelWidth, panelHeight));
-    panel.setFillColor(sf::Color(0, 0, 0, 200)); // 半透明黑色背景
-    panel.setPosition(-panelWidth, 200.f); // 初始位置在屏幕外
 
     isPanelVisible = false; // 初始时不显示
 
@@ -45,30 +38,30 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
     lightSymmertric=CircleShape(lightRadius);
     lightSymmertric.setOrigin(lightRadius,lightRadius);
     lightSymmertric.setFillColor(Color(255,255,255,0));
+    if(gameLoad==1){
+        girl.loadItemQuantitiesFromFile("../configs/pack.json");
+        loadFromFile("../configs/others.json");
+        loadMovableObjectFromJson("../configs/player.json",girl);
+        manager.returnIdx()=c_idx;
+        manager.loadMapData("../configs/finalMap"+std::to_string(c_idx+1)+".json");
+    }
+    
 }
 void LevelState::handleInput(RenderWindow& window){
     Event event;
     while(window.pollEvent(event)){
         if(event.type==Event::Closed){
+            if(gameLoad==1){
+                girl.saveItemQuantitiesToFile("../configs/pack.json");
+                saveToFile("../configs/others.json");
+                saveMovableObjectToJson("../configs/player.json",girl);
+            }
             window.close();
         }
-        // if(event.type==Event::KeyPressed){
-        //     if(event.key.code==Keyboard::O){
-        //         AudioManager::getInstance().playSoundEffect("bloodUp", SoundPriority::MEDIUM);
-        //     }
-        //     return;
-        // }
+
         if(event.type==Event::KeyPressed){
             if(event.key.code==Keyboard::Enter){
                 game->changeState(make_unique<EndState>(game));
-            }
-            if(event.key.code==Keyboard::Q){
-                float gsx=bottomRight.x-64.f*manager.getCurrentBackground().returnScaleX();
-                float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
-                manager.switchMap(9,girl,gsx,gsy);
-                // float gsx=bottomRight.x-45.f*manager.getCurrentBackground().returnScaleX();
-                // float gsy=bottomRight.y-32.f*manager.getCurrentBackground().returnScaleY();
-                // manager.switchMap(4,girl,gsx,gsy);                                                                                      
             }
             return;
         }
@@ -77,7 +70,6 @@ void LevelState::handleInput(RenderWindow& window){
             return;
         }
         if(girl.checkwater(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())){
-            cout<<111<<endl;
             game->changeState(make_unique<EndState>(game));
             return;
         }
@@ -92,13 +84,11 @@ void LevelState::handleInput(RenderWindow& window){
         else{
             isPanelVisible = false;
         }
-        //
 
     }
 }
 
 void LevelState::update(){
-    //bottomleft:(0,y0);bottomright:(x0,y0);topleft:(0,0);topright(x0,0)
     float deltaTime=clock.restart().asSeconds();//获取帧时间差
     DELTATIME=deltaTime;
     girl.update(deltaTime,manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY(),manager.getSlimes(),manager.getIceSlimes(),manager.getRWSlimes(),manager.getspySlimes());
@@ -210,46 +200,25 @@ void LevelState::update(){
 
 void LevelState::render(RenderWindow& window){
     window.clear();
-    // sf::RectangleShape border(sf::Vector2f(window.getSize().x, window.getSize().y));
-    // border.setFillColor(sf::Color::Transparent);  // 设置为透明填充
-    // border.setOutlineThickness(100);  // 设置边框厚度
-    // border.setOutlineColor(sf::Color(255, 255, 255));  // 设置边框颜色
-    // window.draw(border);
+    if(manager.returnIdx()!=2&&manager.returnIdx()!=5){
+        Vector2u windowSize = game->getWindow().getSize();
+        sf::RectangleShape pinkBackground(sf::Vector2f(windowSize.x, windowSize.y));
+        pinkBackground.setFillColor(sf::Color(38, 50, 56));
+        game->getWindow().draw(pinkBackground);
+    }
     manager.renderMap(window,manager.getCurrentMapData());
     girl.render(window);
-    // if(manager.returnIdx()==2||manager.returnIdx()==5){
-    //      // 绘制黑色蒙版
-    // maskTexture.clear(sf::Color::Transparent);
-    // Vector2u windowSize = game->getWindow().getSize();
-    // // 绘制半透明黑色全屏矩形
-    // sf::RectangleShape blackRect(sf::Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)));
-    // blackRect.setFillColor(sf::Color(0, 0, 0, 200)); // 半透明黑色
-    // maskTexture.draw(blackRect);
-
-    // // 设置光照圆形的位置为玩家位置
-    // lightCircle.setPosition(girl.getPosition());
-    // maskTexture.draw(lightCircle, sf::BlendNone); // 使用无混合模式绘制透明区域
-
-    // maskTexture.display();
-
-    // // 获取蒙版纹理并设置混合模式为Multiply
-    // sf::Sprite maskSprite(maskTexture.getTexture());
-    // sf::RenderStates states;
-    // states.blendMode = sf::BlendMultiply;
-
-    // // 将蒙版渲染到窗口
-    // window.draw(maskSprite, states);
-    // }
     if (manager.returnIdx() == 2 || manager.returnIdx() == 5) {
+
     // 绘制黑色蒙版
     maskTexture.clear(sf::Color::Transparent);
     Vector2u windowSize = game->getWindow().getSize();
-    // 绘制半透明黑色全屏矩形
+
     sf::RectangleShape blackRect(sf::Vector2f(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y)));
-    blackRect.setFillColor(sf::Color(0, 0, 0, 200)); // 半透明黑色
+    blackRect.setFillColor(sf::Color(0, 0, 0, 200));
     maskTexture.draw(blackRect);
 
-    // 如果 idx 是 5，绘制对称的透明蒙版
+
     if (manager.returnIdx() == 5) {
         
         Vector2f symmertricPos={windowSize.x-girl.getPosition().x,girl.getPosition().y};
@@ -259,21 +228,17 @@ void LevelState::render(RenderWindow& window){
 
     // 设置光照圆形的位置为玩家位置
     lightCircle.setPosition(girl.getPosition());
-    maskTexture.draw(lightCircle, sf::BlendNone); // 使用无混合模式绘制透明区域
+    maskTexture.draw(lightCircle, sf::BlendNone);
 
     maskTexture.display();
 
-    // 获取蒙版纹理并设置混合模式为Multiply
     sf::Sprite maskSprite(maskTexture.getTexture());
     sf::RenderStates states;
     states.blendMode = sf::BlendMultiply;
 
-    // 将蒙版渲染到窗口
+
     window.draw(maskSprite, states);
     }
-    //shop.update(window);
-    //shop.render(window);
-    //window.draw(panel);
     sidebar.render(window,girl);
     window.display();
 }

@@ -4,13 +4,14 @@
 #include <locale>
 #include <SFML/Graphics.hpp>
 #include <vector>
-#include "Button.h"  // 引入 Button 类
+#include "Button.h"
 #include "GlobalVar.h"
 #include "Player.h"
 
 class Rule {
 private:
     Button ruleButton;         // 规则系统按钮
+    Button quitButton;
     RectangleShape buttonMask; //蒙一层磨砂效果
     sf::RectangleShape ruleWindow;  // 规则界面的背景
     bool isRuleOpen;               // 规则系统是否打开

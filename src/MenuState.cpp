@@ -20,10 +20,11 @@ using namespace std;
     unsigned int startButtonX = (windowSize.x - buttonWidth) / 2;
     unsigned int startButtonY = windowSize.y - buttonHeight - 140;
 
-    unsigned int exitButtonX = (windowSize.x - exitButttonWidth) / 2;
-    unsigned int exitButtonY = startButtonY + buttonHeight + 10;
+    unsigned int exitButtonX = (windowSize.x - exitButttonWidth) / 2-110;
+    unsigned int exitButtonY = startButtonY + buttonHeight + 20;
     startButton=Button(startButtonX,startButtonY,buttonWidth,buttonHeight,"../resources/images/start.png");
     exitButton=Button(exitButtonX,exitButtonY,exitButttonWidth,buttonHeight,"../resources/images/exit.png");
+    oldgameButton=Button(exitButtonX+130,exitButtonY,182,80,"../resources/images/oldGame.png");
     background=Map("../resources/images/menuBg.png");
 
     //
@@ -80,9 +81,13 @@ void MenuState::handleInput(RenderWindow& window){
         }
         if(event.type == Event::MouseButtonPressed){
             if(startButton.isPressed(Mouse::getPosition(window))){
-                cout<<"???"<<endl;
+                
                 game->changeState(make_unique<LevelState>(game));
 
+            }
+            if(oldgameButton.isPressed(Mouse::getPosition(window))) {
+                gameLoad=1;
+                game->changeState(make_unique<LevelState>(game));
             }
             if(exitButton.isPressed(Mouse::getPosition(window))) {
                 cout<<"ExitButton clicked!"<<endl;
@@ -99,6 +104,7 @@ void MenuState::render(RenderWindow& window){
     window.clear(Color::Black);
     background.draw(window);
     startButton.draw(window);
-    exitButton.draw(window);   
+    exitButton.draw(window);
+    oldgameButton.draw(window);  
     window.display();
 }

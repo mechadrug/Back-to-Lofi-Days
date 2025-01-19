@@ -20,17 +20,31 @@ private:
     Button button; // 半透明按钮;当点击这个按钮之后,会呼出sidebar
     RectangleShape buttonMask; //蒙一层磨砂效果
     Clock clickClock;
+    Clock hintClock;
     const float clickCooldown = 1.0f;
+    RectangleShape playerMask; //角色信息显示磨砂效果
+    string healthinfo;
+    wstring currentEquipinfo;
+    Texture& monesy=TexturePool::getTexture("../resources/images/money.png");
+
+    Texture& health=TexturePool::getTexture("../resources/images/health.png");
+    Texture& equipment=TexturePool::getTexture("../resources/images/equipments.png");
+    Sprite moneySprite;
+    Sprite healthSprite;
+    Sprite equipmentSprite;
+
+    Button hintButton;
+    Texture& hint=TexturePool::getTexture("../resources/images/hint.png");
+    bool hintOpen;
+    RectangleShape hintMask; //提示显示磨砂效果
+    Text info;
 
 public:
     SidebarManager();
     ~SidebarManager();
     void render(sf::RenderWindow& window,MovableObject& girl);  // 渲染侧边栏及当前活跃的子系统
-    void handleClick(const sf::Vector2i& mousePos,MovableObject &girl);  // 处理点击
-    void update(sf::RenderWindow& window,MovableObject &girl);  // 更新所有子系统的状态
     void openSidebar();  // 展开侧边栏
     void closeSidebar(); // 收回侧边栏
-    void setActiveSystem(void* system);  // 切换显示的子系统
     void isClickOpener(RenderWindow& window){
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
             Vector2i mousePos = Mouse::getPosition(window);

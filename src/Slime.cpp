@@ -3,8 +3,9 @@
 Slime::Slime(float x, float y, const sf::Texture& texture, int health, 
              int attackDamage, float attackCooldown, int detectionRange)
     : movable(x, y, texture, 1.8f, 1.8f,1), health(health), attackDamage(attackDamage),
-      attackCooldown(attackCooldown), detectionRange(detectionRange), isDead(false),sleep(false){}
-//注意这里的1.8f是暂时值之后再改动
+      attackCooldown(attackCooldown), detectionRange(detectionRange), isDead(false),sleep(false){
+        powerRenderClock.restart();
+      }
 void Slime::update(MovableObject& target) {
     if(gamePaused){
         return;
@@ -35,6 +36,7 @@ void Slime::update(MovableObject& target) {
             attack(target);
             cout<<"Bob attack girl!"<<endl;
             attackClock.restart();
+            powerRenderClock.restart();
         }
     }
 }
@@ -47,7 +49,26 @@ void Slime::attack(MovableObject& target) {
     }
     target.takeDamage(attackDamage);
 }
-
+void Slime::renderPower(sf::RenderWindow& window){
+    if (powerRenderClock.getElapsedTime().asSeconds() < 0.5f){
+        Texture&up=TexturePool::getTexture("../resources/images/Bob/BobattackUp.png");
+        Texture&down=TexturePool::getTexture("../resources/images/Bob/BobattackDown.png");
+        Texture&left=TexturePool::getTexture("../resources/images/Bob/BobattackLeft.png");
+        Texture&right=TexturePool::getTexture("../resources/images/Bob/BobattackRight.png");
+        upsprite.setTexture(up);
+        downsprite.setTexture(down);
+        leftsprite.setTexture(left);
+        rightsprite.setTexture(right);
+        upsprite.setPosition(movable.getPosition().x, movable.getPosition().y - upsprite.getGlobalBounds().height);
+        downsprite.setPosition(movable.getPosition().x, movable.getPosition().y + movable.getGlobalBounds().height);
+        leftsprite.setPosition(movable.getPosition().x - leftsprite.getGlobalBounds().width, movable.getPosition().y);
+        rightsprite.setPosition(movable.getPosition().x + movable.getGlobalBounds().width, movable.getPosition().y);
+        window.draw(upsprite);
+        window.draw(downsprite);
+        window.draw(leftsprite);
+        window.draw(rightsprite);
+    }
+}
 void Slime::takeDamage(int damage) {
     health -= damage;
     if (health <= 0) {
@@ -59,6 +80,9 @@ void Slime::takeDamage(int damage) {
 void Slime::render(sf::RenderWindow& window) {
     if (!isDead) {
         movable.render(window);
+        renderPower(window);
+    }else{
+        acCheck[1]=true;
     }
 }
 
@@ -84,7 +108,15 @@ RandomWalkingSlime::RandomWalkingSlime(float x, float y, const sf::Texture& text
     isVerticalMovement = dist(gen) == 0;
     movementClock.restart();
 }
+void RandomWalkingSlime::render(sf::RenderWindow& window) {
+    if (!isDead) {
+        movable.render(window);        
+    }else{
+        acCheck[3]=true;
+    }
 
+    
+}
 void RandomWalkingSlime::update(MovableObject& target) {
     Slime::update(target);  // 调用父类的update方法
 
@@ -222,12 +254,15 @@ void MissileSlime::update(MovableObject& target) {
 void MissileSlime::render(sf::RenderWindow& window) {
     if (!isDead) {
         movable.render(window);
+        // 渲染导弹
+        for (auto& missile : missiles) {
+            missile->render(window);
+        }
+    }else{
+        acCheck[2]=true;
     }
 
-    // 渲染导弹
-    for (auto& missile : missiles) {
-        missile->render(window);
-    }
+    
 }
 
 void MissileSlime::fireMissiles() {

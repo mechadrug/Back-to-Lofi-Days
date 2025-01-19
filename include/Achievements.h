@@ -10,6 +10,7 @@
 class Achievements {
 private:
     Button acButton;         // 成就按钮
+    Button quitButton;
     RectangleShape buttonMask; //蒙一层磨砂效果
     sf::RectangleShape acWindow;  // 成就界面的背景
     bool isAcOpen;               // 成就是否打开
@@ -18,7 +19,6 @@ private:
     Font font;
     vector<ACButton>acButtons;// 处理点击
     vector<ACButton>showButtons;// 专门显示
-    // wstring currentAcInfo;
 public:
     Achievements();
     void loadAC();

@@ -4,6 +4,7 @@ Rule::Rule() : isRuleOpen(false), ruleButton(-50, 550, 50, 50, "../resources/ima
     // 设置商店界面的背景（简单的矩形，实际上你可以加载更复杂的界面）
     fx=window_sz.x/2-300.f;
     fy=window_sz.y/2-225.f;
+    quitButton=Button(fx+568.f,fy,32,32,"../resources/images/quit.png");
     ruleWindow.setSize(sf::Vector2f(600, 450));
     ruleWindow.setFillColor(sf::Color(0, 0, 0, 200));  // 半透明黑色背景
     ruleWindow.setPosition(fx, fy);  // 商店界面的初始位置
@@ -26,11 +27,12 @@ void Rule::update(sf::RenderWindow& window,MovableObject&girl) {
 void Rule::render(sf::RenderWindow& window) {
     window.draw(buttonMask);
     ruleButton.draw(window);  // 渲染规则按钮
-    
 
     // 如果规则界面打开，绘制商店界面
     if (isRuleOpen) {
         window.draw(ruleWindow);
+        quitButton.draw(window);
+
         Text head;
         head.setFont(font);
         head.setString(gameRules[0]);
@@ -54,7 +56,14 @@ void Rule::handleClick(const sf::Vector2i& mousePos,MovableObject& girl) {
     if (clickClock.getElapsedTime().asSeconds() < clickCooldown) {
         return;  // 如果没过 1 秒，则不执行点击操作
     }
-
+    if(quitButton.isPressed(mousePos)){
+        if(isRuleOpen){
+            closeRule();
+            usingSystem=0;
+        }
+        clickClock.restart();
+        return;
+    }
     
     // 如果鼠标点击的位置在Rule按钮范围内
     if (ruleButton.isPressed(mousePos)) {

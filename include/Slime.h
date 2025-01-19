@@ -23,6 +23,11 @@ protected:
     int detectionRange;              // 检测范围（每方向一格）
     bool sleep;
     Clock sleepClock;
+    Clock powerRenderClock;
+    Sprite upsprite;
+    Sprite downsprite;
+    Sprite leftsprite;
+    Sprite rightsprite;
 
 public:
     Slime(float x, float y, const sf::Texture& texture, int health = 8, 
@@ -30,6 +35,7 @@ public:
 
     virtual void update(MovableObject& target);
     void attack(MovableObject& target);
+    virtual void renderPower(sf::RenderWindow& window);
     void takeDamage(int damage);
     virtual void render(sf::RenderWindow& window);
 
@@ -38,6 +44,9 @@ public:
     void changeSleep(){
         sleep=true;
     }
+    FloatRect getGlobalBounds(){
+        return movable.getGlobalBounds();
+    }
 };
 
 class RandomWalkingSlime : public Slime {
@@ -45,12 +54,8 @@ private:
     sf::Clock movementClock;      // 控制随机移动的计时器
     float moveCooldown;           // 移动冷却时间
     float moveSpeed;              // 平滑移动的速度
-    //sf::Vector2f targetPosition;  // 当前目标位置
     bool isVerticalMovement;      // 是否垂直移动（上下移动）
     bool movingPositive;          // 当前是否向正方向移动（向上或向右）
-    //std::random_device rd;        // 用于生成随机数的设备
-    //std::mt19937 gen;             // Mersenne Twister 随机数生成器
-    //std::uniform_int_distribution<> dist; // 随机方向生成器
     sf::Vector2f initialPosition; // 初始位置
 
 public:
@@ -59,6 +64,10 @@ public:
                         float moveCooldown = 1.f, float moveSpeed = 150.f);
 
     void update(MovableObject& target) override;  // 重写update方法
+    void render(sf::RenderWindow& window)override;
+    void renderPower(sf::RenderWindow& window)override{
+        return;
+    }
     void moveTowardsTarget(float deltaTime);       // 平滑移动
     void changeAlive(){
         isDead=true;
@@ -107,15 +116,21 @@ public:
                 int detectionRange = 200, float missileCooldown = 2.f);
 
     void update(MovableObject& target) override;
+    void renderPower(sf::RenderWindow& window)override{
+        return;
+    }
     void render(sf::RenderWindow& window) override;
 };
 
 class SpySlime : public Slime {
 private:
     vector<vector<Tile>>map;
+    int count;
 public:
     SpySlime(float x, float y, const Texture& texture,const vector<vector<Tile>>map,float speed = 100.f, bool isDead = false, int health = 8, int attackDamage = 6, float attackCooldown = 1.f,
-        int detectionRange = 2, float Cooldown = 2.f) : Slime(x, y, texture, health, attackDamage, attackCooldown, detectionRange){}
+        int detectionRange = 2, float Cooldown = 2.f) : Slime(x, y, texture, health, attackDamage, attackCooldown, detectionRange){
+            count=0;
+        }
 
     void update(MovableObject& target) {
         if (isDead) return;
@@ -127,6 +142,10 @@ public:
             if(sleepClock.getElapsedTime().asSeconds()>=2*attackCooldown){
                 sleep=false;
                 sleepClock.restart();
+                count+=1;
+                if(count>=3){
+                    acCheck[9]=true;
+                }
             }
         
             return;
@@ -177,6 +196,9 @@ public:
             // 使用相对方向和速度更新位置
             movable.setPosition(movement);
         }
+    }
+    void renderPower(sf::RenderWindow& window)override{
+        return;
     }
 };
 #endif
