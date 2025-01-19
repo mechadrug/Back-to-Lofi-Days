@@ -1,8 +1,8 @@
 #ifndef SLIME_H
 #define SLIME_H
 
-#include "../SFML/Graphics.hpp"
-#include "../SFML/System/Clock.hpp"
+#include <SFML/Graphics.hpp>
+#include <SFML/System/Clock.hpp>
 #include "Player.h"
 #include "Map.h"
 #include "MapManager.h"

@@ -62,19 +62,23 @@ void LevelState::handleInput(RenderWindow& window){
         if(event.type==Event::KeyPressed){
             if(event.key.code==Keyboard::Enter){
                 game->changeState(make_unique<EndState>(game));
+                c_idx=0;
             }
             return;
         }
         if(girl.toExit(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())){
             game->changeState(make_unique<EndState>(game));
+            c_idx=0;
             return;
         }
         if(girl.checkwater(manager.getCurrentMapData(),16.0*manager.getCurrentBackground().returnScaleX(),16.0*manager.getCurrentBackground().returnScaleY())){
             game->changeState(make_unique<EndState>(game));
+            c_idx=0;
             return;
         }
         if(!girl.isAlive()){
             game->changeState(make_unique<EndState>(game));
+            c_idx=0;
             return;
         }
         sidebar.isClickOpener(window);

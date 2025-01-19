@@ -2,7 +2,7 @@
 #define BUTTON_H
 
 #include"GlobalVar.h"
-#include "../SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 #include <string>
 #include<memory>
 #include "../include/TexturePool.h"

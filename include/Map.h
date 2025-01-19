@@ -1,7 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "../SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 #include <memory>
 #include <stdexcept>
 #include "Game.h"

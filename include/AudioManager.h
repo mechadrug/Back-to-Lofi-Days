@@ -1,7 +1,7 @@
 #ifndef AUDIOMANAGER_H
 #define AUDIOMANAGER_H
 
-#include "../SFML/Audio.hpp"
+#include <SFML/Audio.hpp>
 #include <string>
 #include <map>
 #include <memory>

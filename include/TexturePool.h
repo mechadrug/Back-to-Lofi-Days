@@ -2,7 +2,7 @@
 #define TEXTUREPOOL_H
 
 
-#include "../SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include <memory>
 #include <string>

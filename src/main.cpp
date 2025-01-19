@@ -1,4 +1,4 @@
-#include "../SFML/Window.hpp"
+#include <SFML/Window.hpp>
 #include "../include/Shop.h"
 #include "../include/Game.h"
 #include<iostream>

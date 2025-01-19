@@ -81,7 +81,7 @@ void MenuState::handleInput(RenderWindow& window){
         }
         if(event.type == Event::MouseButtonPressed){
             if(startButton.isPressed(Mouse::getPosition(window))){
-                
+                gameLoad=0;
                 game->changeState(make_unique<LevelState>(game));
 
             }

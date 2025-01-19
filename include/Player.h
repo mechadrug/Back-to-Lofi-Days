@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <chrono>
-#include "../SFML/Graphics.hpp"
+#include <SFML/Graphics.hpp>
 #include "GlobalVar.h"
 #include<unordered_map>
 #include<cstdlib>

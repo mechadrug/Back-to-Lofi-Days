@@ -1,8 +1,8 @@
 #ifndef COIN_H
 #define COIN_H
 
-#include "../SFML/Graphics.hpp"
-#include "../SFML/System/Clock.hpp"
+#include <SFML/Graphics.hpp>
+#include <SFML/System/Clock.hpp>
 #include "Player.h"
 #include "Map.h"
 

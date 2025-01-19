@@ -16,7 +16,7 @@
         "isInvisible": false,
         "isJumping": false,
         "jumpHeight": 533.0,
-        "lastAttackTime": 582270766,
+        "lastAttackTime": 4289915,
         "money": 1000,
         "originalValues": {
             "atkRange": 2,
@@ -30,8 +30,8 @@
             "speed": 350.0
         },
         "position": {
-            "x": 57.599998474121094,
-            "y": 59.35874557495117
+            "x": 57.45964050292969,
+            "y": 59.35450744628906
         },
         "probWithoutBeingAttacked": 0.0,
         "speed": 350.0,
