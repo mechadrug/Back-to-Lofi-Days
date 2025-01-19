@@ -5,20 +5,23 @@
             "label": "C/C++: g++.exe 生成活动文件",
             "command": "E:\\MinGW\\mingw64\\bin\\g++.exe",
             "args": [
-                // 包含头文件路径
-                "${workspaceFolder}/src/tinyxml2.cpp",
-                "-I", "${workspaceFolder}/include",
-                "-I", "${workspaceFolder}/src",
-                "-I", "E:\\sfml\\SFML-2.6.2\\include",
-                "-fdiagnostics-color=always",
-                "-g",
-                // 指定所有需要的 .cpp 文件
-                "${file}",
-                // 链接库
-                "-L", "E:\\sfml\\SFML-2.6.2\\lib",
-                "-lsfml-graphics",
-                "-lsfml-window",
-                "-lsfml-system"
+            //    // 包含头文件路径
+            //    "-I", "${workspaceFolder}/include",
+            //    "-I", "${workspaceFolder}/src",
+            //    "-I", "E:\\sfml\\SFML-2.6.2\\include",
+            //    "-fdiagnostics-color=always",
+            //    "-g",
+            //    // 指定所有需要的 .cpp 文件
+            //    "${file}",
+            //    // 链接库
+            //    "-L", "E:\\sfml\\SFML-2.6.2\\lib",
+            //    "-static",                   // 启用静态链接
+            //    "-lsfml-graphics-s",         // 静态链接 SFML 图形库
+            //    "-lsfml-window-s",           // 静态链接 SFML 窗口库
+            //    "-lsfml-system-s",           // 静态链接 SFML 系统库
+            //    "-lsfml-audio-s",            // 静态链接 SFML 音频库
+            //    "-static-libgcc",            // 静态链接 GCC 库
+            //    "-static-libstdc++"          // 静态链接标准 C++ 库
                 
             ],
             "options": {

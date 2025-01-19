@@ -1,7 +1,7 @@
 #ifndef ACHIEVEMENTS_H
 #define ACHIEVEMENTS_H
 
-#include <SFML/Graphics.hpp>
+#include "../SFML/Graphics.hpp"
 #include <vector>
 #include <string>
 #include "Player.h"

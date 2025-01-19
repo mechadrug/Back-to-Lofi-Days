@@ -1,7 +1,7 @@
 #ifndef BACKPACK_H
 #define BACKPACK_H
 
-#include <SFML/Graphics.hpp>
+#include "../SFML/Graphics.hpp"
 #include "Button.h"  // 引入 Button 类
 #include "GlobalVar.h"
 #include "Player.h"

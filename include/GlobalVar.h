@@ -9,7 +9,7 @@
 #include "Item.h"
 #include "AudioManager.h"
 #include <utility>
-#include <SFML/Graphics.hpp>
+#include "../SFML/Graphics.hpp"
 #include "TexturePool.h"
 using namespace std;
 using namespace sf;

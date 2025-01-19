@@ -6,7 +6,7 @@
 #include <codecvt>
 #include <locale>
 #include <unordered_map>
-#include <SFML/Window.hpp>
+#include "../SFML/Window.hpp"
 #include <memory>
 using namespace std;
 using namespace sf;

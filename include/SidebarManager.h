@@ -1,7 +1,7 @@
 #ifndef SIDEBARMANAGER_H
 #define SIDEBARMANAGER_H
 
-#include <SFML/Graphics.hpp>
+#include "../SFML/Graphics.hpp"
 #include "Shop.h"
 #include "Achievements.h"
 #include "Backpack.h"  // 假设你有背包系统

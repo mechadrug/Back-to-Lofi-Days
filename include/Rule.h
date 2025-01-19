@@ -2,7 +2,7 @@
 #define RULE_H
 #include <codecvt>
 #include <locale>
-#include <SFML/Graphics.hpp>
+#include "../SFML/Graphics.hpp"
 #include <vector>
 #include "Button.h"
 #include "GlobalVar.h"

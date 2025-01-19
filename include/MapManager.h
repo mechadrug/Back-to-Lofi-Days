@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <string>
-#include "../include/json.hpp"
+#include "json.hpp"
 #include "Map.h"
 #include "Player.h"
 #include "TexturePool.h"

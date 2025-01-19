@@ -1,6 +1,6 @@
 #ifndef LOADANDSTORE_H
 #define LOADANDSTORE_H
-#include "../include/json.hpp"
+#include "json.hpp"
 #include <fstream>
 #include <iostream>
 #include "../include/Player.h"
