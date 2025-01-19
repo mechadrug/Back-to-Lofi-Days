@@ -43,6 +43,10 @@ LevelState::LevelState(Game*game): game(game),manager(),shop(){
         loadFromFile("../configs/others.json");
         loadMovableObjectFromJson("../configs/player.json",girl);
         manager.returnIdx()=c_idx;
+        manager.getSlimes().clear();
+        manager.getRWSlimes().clear();
+        manager.getIceSlimes().clear();
+        manager.getspySlimes().clear();
         manager.loadMapData("../configs/finalMap"+std::to_string(c_idx+1)+".json");
     }
     
